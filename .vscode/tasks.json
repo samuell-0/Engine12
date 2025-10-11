@@ -1,0 +1,56 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Build All",
+            "type": "shell",
+            "command": "cmake -B build -G Ninja && cmake --build build",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": ["$gcc"],
+            "detail": "Build renderer, demo, and tests"
+        },
+        {
+            "label": "Build Main",
+            "type": "shell",
+            "command": "cmake -B build -G Ninja && cmake --build build --target main",
+            "group": "build",
+            "problemMatcher": ["$gcc"],
+            "detail": "Build main executable"
+        },
+        {
+            "label": "Build Tests",
+            "type": "shell",
+            "command": "cmake -B build -G Ninja && cmake --build build --target renderer_tests",
+            "group": "build",
+            "problemMatcher": ["$gcc"],
+            "detail": "Build test executable"
+        },
+        {
+            "label": "Run Main",
+            "type": "shell",
+            "command": "${workspaceFolder}/bin/main",
+            "group": "test",
+            "problemMatcher": [],
+            "detail": "Run main"
+        },
+        {
+            "label": "Run Tests",
+            "type": "shell",
+            "command": "${workspaceFolder}/bin/renderer_tests",
+            "group": "test",
+            "problemMatcher": [],
+            "detail": "Run unit tests"
+        },
+        {
+            "label": "Build Shaders",
+            "type": "shell",
+            "command": "cmake -B build -G Ninja && cmake --build build --target shaders",
+            "group": "build",
+            "problemMatcher": [],
+            "detail": "Compile GLSL shaders to SPIR-V"
+        }
+    ]
+}
