@@ -19,7 +19,7 @@ add_library(imgui
     ${CMAKE_SOURCE_DIR}/third_party/imgui/backends/imgui_impl_vulkan.cpp
     ${CMAKE_SOURCE_DIR}/third_party/imgui/backends/imgui_impl_sdl3.cpp
 )
-target_include_directories(imgui PUBLIC ${CMAKE_SOURCE_DIR}/third_party/imgui)
+target_include_directories(imgui PUBLIC ${CMAKE_SOURCE_DIR}/third_party/imgui ${CMAKE_SOURCE_DIR}/third_party/imgui/backends)
 target_link_libraries(imgui PUBLIC SDL3::SDL3 VulkanHeaders vulkan)
 
 # stb
