@@ -1,7 +1,5 @@
-#include <iostream>
-#include <renderer/core/CommandPool.h>
-#include <physics/DrawCommandGenerator.h>
-int main(){
-    std::cout << "hello, Vulkan!" << std::endl;
-    return 0;
-}
+#define SDL_MAIN_USE_CALLBACKS 1 
+#include "window/Init.hpp"
+#include "window/Event.hpp"
+#include "window/Iterate.hpp"
+#include "window/CleanUp.hpp"

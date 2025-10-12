@@ -30,6 +30,7 @@ add_library(renderer
     src/renderer/utils/ShaderModule.cpp
     src/physics/TransformUpdater.cpp
     src/physics/DrawCommandGenerator.cpp
+    src/physics/PhysicsThread.cpp
     src/shadertoy/ShaderToyRunner.cpp
     src/shadertoy/EffectPipeline.cpp
 )
