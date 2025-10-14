@@ -9,4 +9,5 @@ void watchFiles(const void* const appstate){
     while (!as->signal_to_exit){
         std::cout << "on the look out!" << std::endl;
     }
+    std::cout << as->signal_to_exit << std::endl;
 }

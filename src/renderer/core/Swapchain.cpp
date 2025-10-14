@@ -1,0 +1,54 @@
+#include "renderer/core/Swapchain.h"
+#include "renderer/core/CommandPool.h"
+#include <iostream>
+bool Swapchain::create_framebuffers(AppState* appstate) {
+    appstate->render_data.swapchain_images = appstate->swapchain.get_images().value();
+    appstate->render_data.swapchain_image_views = appstate->swapchain.get_image_views().value();
+
+    appstate->render_data.framebuffers.resize(appstate->render_data.swapchain_image_views.size());
+
+    for (size_t i = 0; i < appstate->render_data.swapchain_image_views.size(); i++) {
+        VkImageView attachments[] = { appstate->render_data.swapchain_image_views[i] };
+
+        VkFramebufferCreateInfo framebuffer_info = {};
+        framebuffer_info.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+        framebuffer_info.renderPass = appstate->render_data.render_pass;
+        framebuffer_info.attachmentCount = 1;
+        framebuffer_info.pAttachments = attachments;
+        framebuffer_info.width = appstate->swapchain.extent.width;
+        framebuffer_info.height = appstate->swapchain.extent.height;
+        framebuffer_info.layers = 1;
+
+        if (appstate->disp.createFramebuffer(&framebuffer_info, nullptr, &appstate->render_data.framebuffers[i]) != VK_SUCCESS)
+            return false;
+    }
+    return true;
+}
+bool Swapchain::create_swapchain(AppState* appstate){
+    vkb::SwapchainBuilder       swapchain_builder{ appstate->device };
+    vkb::Result<vkb::Swapchain> swap_result = swapchain_builder.set_old_swapchain(appstate->swapchain).build();
+    if (!swap_result) return false;
+
+    vkb::destroy_swapchain(appstate->swapchain);
+    appstate->swapchain = swap_result.value();
+
+    return true;
+}
+bool Swapchain::recreate_swapchain(AppState* appstate){
+    appstate->disp.deviceWaitIdle();
+
+    appstate->disp.destroyCommandPool(appstate->render_data.command_pool, nullptr);
+
+    for (auto framebuffer : appstate->render_data.framebuffers) {
+        appstate->disp.destroyFramebuffer(framebuffer, nullptr);
+    }
+
+    appstate->swapchain.destroy_image_views(appstate->render_data.swapchain_image_views);
+
+    if (!create_swapchain(appstate))                    return false;
+    if (!create_framebuffers(appstate))                 return false;
+    if (!CommandPool::create_command_pool(appstate))    return false;
+    if (!CommandPool::create_command_buffers(appstate)) return false;
+    
+    return true;
+}

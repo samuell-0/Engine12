@@ -1,5 +1,7 @@
-#include "renderer/core/CommandPool.h"
+#pragma once
+#include "window/State.hpp"
 
-void sam(){
-    std::cout << "hello, vulkan" << std::endl;
+namespace CommandPool{
+    bool create_command_pool(AppState* appstate);
+    bool create_command_buffers(AppState* appstate);
 }

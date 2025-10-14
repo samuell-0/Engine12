@@ -15,6 +15,7 @@ add_library(renderer
     src/renderer/core/Device.cpp
     src/renderer/core/Swapchain.cpp
     src/renderer/core/CommandPool.cpp
+    src/renderer/core/Renderer.cpp
     src/renderer/resources/Buffer.cpp
     src/renderer/resources/Texture.cpp
     src/renderer/resources/DescriptorManager.cpp
@@ -24,7 +25,6 @@ add_library(renderer
     src/renderer/pipelines/ShadowPipeline.cpp
     src/renderer/pipelines/ComputePipeline.cpp
     src/renderer/pipelines/SkinningPipeline.cpp
-    src/renderer/utils/Renderer.cpp
     src/renderer/utils/FrameGraph.cpp
     src/renderer/utils/BarrierHelper.cpp
     src/renderer/utils/ShaderModule.cpp
