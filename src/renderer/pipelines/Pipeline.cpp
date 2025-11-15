@@ -1,12 +1,12 @@
 #include "renderer/pipelines/Pipeline.h"
 #include "renderer/utils/ShaderModule.h"
-
-bool Pipeline::create_graphics_pipeline(AppState* appstate){
+#include "core/Log.hpp"
+VkResult Pipeline::create_graphics_pipeline(AppState* appstate){
 
     VkShaderModule vert_module = ShaderModule::create_shader_module(appstate, "/home/Aero/Documents/projects/Engine12/shaders/compiled/vert.spv");
     VkShaderModule frag_module = ShaderModule::create_shader_module(appstate, "/home/Aero/Documents/projects/Engine12/shaders/compiled/frag.spv");
     if (vert_module == VK_NULL_HANDLE || frag_module == VK_NULL_HANDLE)
-        return false;
+        return Log::push(LogLevel::Error, "shader problems", VK_ERROR_UNKNOWN);
 
     VkPipelineShaderStageCreateInfo vert_stage_info = {};
     vert_stage_info.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
@@ -89,8 +89,9 @@ bool Pipeline::create_graphics_pipeline(AppState* appstate){
     pipeline_layout_info.setLayoutCount = 0;
     pipeline_layout_info.pushConstantRangeCount = 0;
 
-    if (appstate->disp.createPipelineLayout(&pipeline_layout_info, nullptr, &appstate->render_data.pipeline_layout) != VK_SUCCESS)
-        return false;
+    VkResult res = appstate->disp.createPipelineLayout(&pipeline_layout_info, nullptr, &appstate->render_data.pipeline_layout);
+    if (res != VK_SUCCESS)
+        return Log::push(LogLevel::Error, "unbl to crt pipeline layout", res);
 
     std::vector<VkDynamicState> dynamic_states = { VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR };
 
@@ -115,11 +116,12 @@ bool Pipeline::create_graphics_pipeline(AppState* appstate){
     pipeline_info.subpass = 0;
     pipeline_info.basePipelineHandle = VK_NULL_HANDLE;
 
-    if (appstate->disp.createGraphicsPipelines(VK_NULL_HANDLE, 1, &pipeline_info, nullptr, &appstate->render_data.graphics_pipeline) != VK_SUCCESS) {
-        return false;
-    }
+    res = (appstate->disp.createGraphicsPipelines(VK_NULL_HANDLE, 1, &pipeline_info, nullptr, &appstate->render_data.graphics_pipeline));
+    if (res != VK_SUCCESS)
+        return Log::push(LogLevel::Error, "unbl to crt graphics pipeline", res);
 
     appstate->disp.destroyShaderModule(frag_module, nullptr);
     appstate->disp.destroyShaderModule(vert_module, nullptr);
-    return true;
+
+    return VK_SUCCESS;
 }

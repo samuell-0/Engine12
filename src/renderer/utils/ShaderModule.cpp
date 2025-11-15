@@ -19,18 +19,21 @@ std::vector<char> readFile(const std::string& filename) {
     return buffer;
 }
 VkShaderModule ShaderModule::create_shader_module(AppState* appstate, const char* path_to_glsl) {
-    auto code = readFile(path_to_glsl);
+    size_t size;
+    void* code = SDL_LoadFile(path_to_glsl, &size);
+    if (code == NULL)
+        return VK_NULL_HANDLE;
 
     VkShaderModuleCreateInfo create_info = {};
     create_info.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-    create_info.codeSize = code.size();
-    create_info.pCode = reinterpret_cast<const uint32_t*>(code.data());
+    create_info.pCode    = reinterpret_cast<const uint32_t*>(code);
+    create_info.codeSize = size;
 
     VkShaderModule shader_module;
     if (appstate->disp.createShaderModule(&create_info, nullptr, &shader_module) != VK_SUCCESS) {
         return VK_NULL_HANDLE;
     }
-
+    SDL_free(code);
     return shader_module;
 }
 bool ShaderModule::compile_shader(){

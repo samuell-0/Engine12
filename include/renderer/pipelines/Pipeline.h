@@ -1,6 +1,6 @@
 #pragma once
-#include "window/State.hpp"
+#include "core/State.hpp"
 
 namespace Pipeline{
-    bool create_graphics_pipeline(AppState* appstate);
+    VkResult create_graphics_pipeline(AppState* appstate);
 }

@@ -28,18 +28,18 @@ typedef struct {
 } RenderData;
 
 typedef struct{
-    RenderData  render_data;
-    bool        signal_to_exit;
-    std::thread event_thread;
-    std::thread physics_thread;
+    RenderData  render_data              ;//= NULL;
+    bool        signal_to_exit           = false;
+    std::thread event_thread             ;//= NULL;
+    std::thread physics_thread           ;//= NULL;
 
-    SDL_Window* window;
-    VkSurfaceKHR surface;
-    vkb::Instance instance;
-    vkb::InstanceDispatchTable inst_disp;
-    vkb::Device device;
-    vkb::DispatchTable disp;
-    vkb::Swapchain swapchain;
-    
-    
+    SDL_Window* window                   ;//= NULL;
+    VkSurfaceKHR surface                 = VK_NULL_HANDLE;
+    vkb::Instance instance               ;//= NULL;
+    vkb::InstanceDispatchTable inst_disp ;//= NULL;
+    vkb::Device device                   ;//= NULL;
+    vkb::DispatchTable disp              ;//= NULL;
+    vkb::Swapchain swapchain             ;//= NULL;
+
+    VkDescriptorPool imgui_desc_pool     = VK_NULL_HANDLE;
 } AppState;

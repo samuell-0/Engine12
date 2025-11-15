@@ -1,5 +1,5 @@
-#define SDL_MAIN_USE_CALLBACKS 1 
-#include "window/Init.hpp"
-#include "window/Event.hpp"
-#include "window/Iterate.hpp"
-#include "window/CleanUp.hpp"
+#define SDL_MAIN_USE_CALLBACKS 1
+#include "core/Init.hpp"
+#include "core/Event.hpp"
+#include "core/Iterate.hpp"
+#include "core/CleanUp.hpp"

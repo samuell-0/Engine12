@@ -1,5 +1,5 @@
 #include "physics/PhysicsThread.h"
-#include "window/State.hpp"
+#include "core/State.hpp"
 #include <iostream>
 void DoPhysics(void* const appstate){
     AppState* as = (AppState*)appstate;

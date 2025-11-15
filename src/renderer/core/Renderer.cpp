@@ -1,6 +1,6 @@
 #include "renderer/core/Renderer.h"
-
-bool Renderer::create_render_pass(AppState* appstate){
+#include "core/Log.hpp"
+VkResult Renderer::create_render_pass(AppState* appstate){
     VkAttachmentDescription color_attachment = {};
     color_attachment.format         = appstate->swapchain.image_format;
     color_attachment.samples        = VK_SAMPLE_COUNT_1_BIT;
@@ -37,13 +37,14 @@ bool Renderer::create_render_pass(AppState* appstate){
     render_pass_info.dependencyCount        = 1;
     render_pass_info.pDependencies          = &dependency;
 
-    if (appstate->disp.createRenderPass(&render_pass_info, nullptr, &appstate->render_data.render_pass) != VK_SUCCESS)
-        return false;
-    return true;
+    VkResult res = appstate->disp.createRenderPass(&render_pass_info, nullptr, &appstate->render_data.render_pass);
+    if (res != VK_SUCCESS)
+        return Log::push(LogLevel::Error, "unbl to crt renderpass", res);
+    return VK_SUCCESS;
 }
 // inline bool Renderer::draw_frame(AppState* AppState){}
 
-bool Renderer::create_sync_objects(AppState* appstate){
+VkResult Renderer::create_sync_objects(AppState* appstate){
     appstate->render_data.available_semaphores.resize(MAX_FRAMES_IN_FLIGHT);
     appstate->render_data.finished_semaphore.resize(appstate->swapchain.image_count);
     appstate->render_data.in_flight_fences.resize(MAX_FRAMES_IN_FLIGHT);
@@ -56,14 +57,43 @@ bool Renderer::create_sync_objects(AppState* appstate){
     fence_info.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
     fence_info.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
-    for (size_t i = 0; i < appstate->swapchain.image_count; i++)
-        if (appstate->disp.createSemaphore(&semaphore_info, nullptr, &appstate->render_data.finished_semaphore[i]) != VK_SUCCESS)
-            return false;
+    for (size_t i = 0; i < appstate->swapchain.image_count; i++){
+        VkResult res = appstate->disp.createSemaphore(&semaphore_info, nullptr, &appstate->render_data.finished_semaphore[i]);
+        if (res != VK_SUCCESS)
+            return Log::push(LogLevel::Error, "unbl to crt semaphore (in a for loop)", res);
+    }
 
     for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
         if (appstate->disp.createSemaphore(&semaphore_info, nullptr, &appstate->render_data.available_semaphores[i]) != VK_SUCCESS ||
             appstate->disp.createFence(&fence_info, nullptr, &appstate->render_data.in_flight_fences[i]) != VK_SUCCESS)
-            return false;
+            return Log::push(LogLevel::Error, "unbl to crt semaphore or fence (create_sync_objects)", VK_ERROR_INITIALIZATION_FAILED);
     }
-    return true;
+    return VK_SUCCESS;
+}
+
+void Renderer::clean_up(AppState* appstate){
+    for (size_t i = 0; i < appstate->swapchain.image_count; i++) {
+        appstate->disp.destroySemaphore(appstate->render_data.finished_semaphore[i], nullptr);
+    }
+    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+        appstate->disp.destroySemaphore(appstate->render_data.available_semaphores[i], nullptr);
+        appstate->disp.destroyFence(appstate->render_data.in_flight_fences[i], nullptr);
+    }
+
+    appstate->disp.destroyCommandPool(appstate->render_data.command_pool, nullptr);
+
+    for (auto framebuffer : appstate->render_data.framebuffers) {
+        appstate->disp.destroyFramebuffer(framebuffer, nullptr);
+    }
+
+    appstate->disp.destroyPipeline(appstate->render_data.graphics_pipeline, nullptr);
+    appstate->disp.destroyPipelineLayout(appstate->render_data.pipeline_layout, nullptr);
+    appstate->disp.destroyRenderPass(appstate->render_data.render_pass, nullptr);
+
+    appstate->swapchain.destroy_image_views(appstate->render_data.swapchain_image_views);
+
+    vkb::destroy_swapchain(appstate->swapchain);
+    vkb::destroy_device(appstate->device);
+    vkb::destroy_surface(appstate->instance, appstate->surface);
+    vkb::destroy_instance(appstate->instance);
 }

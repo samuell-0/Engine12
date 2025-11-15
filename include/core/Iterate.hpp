@@ -5,6 +5,7 @@
 // scene update(the physics theade will handle the computations)
 SDL_AppResult SDL_AppIterate(void *appstate){
     AppState* as = (AppState*)appstate;
-    Renderer::draw_frame(as);
+    if (Renderer::draw_frame(as) != VK_SUCCESS)
+        return SDL_APP_FAILURE;
     return SDL_APP_CONTINUE;
 }

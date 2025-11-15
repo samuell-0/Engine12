@@ -1,8 +1,8 @@
 #pragma once
-#include "window/State.hpp"
+#include "core/State.hpp"
 
 namespace Swapchain{
-    bool create_swapchain(AppState* appstate);
-    bool create_framebuffers(AppState* appstate);
-    bool recreate_swapchain(AppState* appstate);
+    VkResult create_swapchain(AppState* appstate);
+    VkResult create_framebuffers(AppState* appstate);
+    VkResult recreate_swapchain(AppState* appstate);
 }
