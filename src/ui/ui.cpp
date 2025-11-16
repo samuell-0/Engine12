@@ -63,6 +63,7 @@ VkResult UI::init_imgui(AppState* appstate){
         return Log::push(LogLevel::Error, "unbl to ctr imgui descriptor pool(init_imgui)", VK_ERROR_UNKNOWN);
 
     ImGui_ImplVulkan_InitInfo init_info = {};
+    init_info.ApiVersion = VK_API_VERSION_1_0;
     init_info.Instance        = appstate->instance;
     init_info.PhysicalDevice  = appstate->device.physical_device;
     init_info.Device          = appstate->device;
@@ -70,20 +71,28 @@ VkResult UI::init_imgui(AppState* appstate){
     init_info.Queue           = appstate->render_data.graphics_queue;
     init_info.PipelineCache   = VK_NULL_HANDLE;
     init_info.DescriptorPool  = appstate->imgui_desc_pool;
+    // Provide the renderpass and subpass info so ImGui can create its own
+    // pipeline with the correct blending/depth state. If omitted and we
+    // accidentally render ImGui with the app pipeline, depth/write state
+    // mismatches can hide the triangle.
+    init_info.PipelineInfoMain.RenderPass = appstate->render_data.render_pass;
+    init_info.PipelineInfoMain.Subpass = 0;
+    // Represents the number of samples per pixel used for multisample anti-aliasing (MSAA) in the Vulkan pipeline
+    init_info.PipelineInfoMain.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
     // init_info.Subpass         = 0;
     init_info.MinImageCount   = appstate->swapchain.image_count;
     init_info.ImageCount      = appstate->swapchain.image_count;
-    // init_info.MSAASamples     = VK_SAMPLE_COUNT_1_BIT;
     init_info.Allocator       = nullptr;
     // init_info.CheckVkResultFn = [](VkResult err) { VK_CHECK(err); };
+    
+    // Create ImGui Pipeline
     if (!ImGui_ImplVulkan_Init(&init_info))
         return Log::push(LogLevel::Error, "unbl to init vulkan at ImGui_ImplVulkan_Init", VK_ERROR_UNKNOWN);
-
-    // {
-    //     VkCommandBuffer cmd = CommandPool::begin_single_time_command(appstate);
-    //     ImGui_ImplVulkan_CreateFontsTexture(cmd);
-    //     CommandPool::end_single_time_command(appstate, cmd);
-    //     ImGui_ImplVulkan_DestroyFontUploadObjects();
-    // }
+    
     return VK_SUCCESS;
+}
+void UI::shutdown_imgui(AppState* appstate){
+    ImGui_ImplVulkan_Shutdown();
+    ImGui_ImplSDL3_Shutdown();
+    ImGui::DestroyContext();
 }

@@ -1,6 +1,7 @@
 #pragma once
 #include "core/State.hpp"
 #include "renderer/core/Swapchain.h"
+#include "renderer/core/CommandPool.h"
 #include "core/Log.hpp"
 #define MAX_FRAMES_IN_FLIGHT 4
 // to be acquired, it must be done being presented and all
@@ -29,6 +30,11 @@ namespace Renderer{
             appstate->disp.waitForFences(1, &appstate->render_data.image_in_flight[image_index], VK_TRUE, UINT64_MAX);
         
         appstate->render_data.image_in_flight[image_index] = appstate->render_data.in_flight_fences[appstate->render_data.current_frame];
+
+        // Re-record the primary command buffer for this image so dynamic
+        // data (ImGui draw lists) are recorded fresh for the current frame.
+        if (CommandPool::record_command_buffer(appstate, image_index) != VK_SUCCESS)
+            return Log::push(LogLevel::Error, "failed to record command buffer (draw_frame)", VK_ERROR_UNKNOWN);
 
         VkSubmitInfo submitInfo = {};
         submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;

@@ -47,7 +47,7 @@ VkResult Swapchain::recreate_swapchain(AppState* appstate){
     if (create_swapchain(appstate)                     != VK_SUCCESS)  return Log::push(LogLevel::Error, "unbl to crt swp chain(re)",  VK_ERROR_INITIALIZATION_FAILED);;
     if (create_framebuffers(appstate)                  != VK_SUCCESS)  return Log::push(LogLevel::Error, "unbl to crt frame bffr(re)", VK_ERROR_INITIALIZATION_FAILED);;
     if (CommandPool::create_command_pool(appstate)     != VK_SUCCESS)  return Log::push(LogLevel::Error, "unbl to crt cmd pool(re)",   VK_ERROR_INITIALIZATION_FAILED);;
-    if (CommandPool::create_command_buffers(appstate)  != VK_SUCCESS)  return Log::push(LogLevel::Error, "unbl to crt cmd bffr(re)",   VK_ERROR_INITIALIZATION_FAILED);;
-    
+    if (CommandPool::allocate_command_buffers(appstate)  != VK_SUCCESS)  return Log::push(LogLevel::Error, "unbl to crt cmd bffr(re)",   VK_ERROR_INITIALIZATION_FAILED);;
+
     return VK_SUCCESS;
 }

@@ -11,5 +11,7 @@
 namespace UI{
     bool create_window(AppState* appstate);
     VkResult init_imgui(AppState* appstate);
+    void shutdown_imgui(AppState* appstate);
+    // static VkResult create_imgui_descriptor_pool(AppState* appstate);
     void clean_up(AppState* appstate);
 }

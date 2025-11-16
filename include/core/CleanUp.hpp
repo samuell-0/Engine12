@@ -8,7 +8,10 @@ void SDL_AppQuit(void *appstate, SDL_AppResult result){
 
     as->signal_to_exit = true;
 
-    // Renderer::clean_up(as);
-
-    // UI::clean_up(as);
+    // Ensure the device is idle before destroying any children
+    as->disp.deviceWaitIdle();
+    
+    UI::shutdown_imgui(as);
+    Renderer::clean_up(as);
+    UI::clean_up(as);
 }

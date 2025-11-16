@@ -1,5 +1,7 @@
 #include "renderer/core/Renderer.h"
 #include "core/Log.hpp"
+#include "backends/imgui_impl_vulkan.h"
+#include "backends/imgui_impl_sdl3.h"
 VkResult Renderer::create_render_pass(AppState* appstate){
     VkAttachmentDescription color_attachment = {};
     color_attachment.format         = appstate->swapchain.image_format;
@@ -72,6 +74,13 @@ VkResult Renderer::create_sync_objects(AppState* appstate){
 }
 
 void Renderer::clean_up(AppState* appstate){
+
+    // Free command buffers allocated from our command pool before destroying it
+    if (!appstate->render_data.command_buffers.empty())
+        appstate->disp.freeCommandBuffers( appstate->render_data.command_pool,
+                                           static_cast<uint32_t>(appstate->render_data.command_buffers.size()),
+                                           appstate->render_data.command_buffers.data());
+
     for (size_t i = 0; i < appstate->swapchain.image_count; i++) {
         appstate->disp.destroySemaphore(appstate->render_data.finished_semaphore[i], nullptr);
     }
@@ -80,8 +89,10 @@ void Renderer::clean_up(AppState* appstate){
         appstate->disp.destroyFence(appstate->render_data.in_flight_fences[i], nullptr);
     }
 
+    // Destroy the main command pool (must be after freeing its command buffers)
     appstate->disp.destroyCommandPool(appstate->render_data.command_pool, nullptr);
 
+    // Destroy framebuffers, pipelines and render pass
     for (auto framebuffer : appstate->render_data.framebuffers) {
         appstate->disp.destroyFramebuffer(framebuffer, nullptr);
     }
@@ -89,6 +100,12 @@ void Renderer::clean_up(AppState* appstate){
     appstate->disp.destroyPipeline(appstate->render_data.graphics_pipeline, nullptr);
     appstate->disp.destroyPipelineLayout(appstate->render_data.pipeline_layout, nullptr);
     appstate->disp.destroyRenderPass(appstate->render_data.render_pass, nullptr);
+
+    // Destroy ImGui descriptor pool
+    if (appstate->imgui_desc_pool != VK_NULL_HANDLE) {
+        appstate->disp.destroyDescriptorPool(appstate->imgui_desc_pool, nullptr);
+        appstate->imgui_desc_pool = VK_NULL_HANDLE;
+    }
 
     appstate->swapchain.destroy_image_views(appstate->render_data.swapchain_image_views);
 

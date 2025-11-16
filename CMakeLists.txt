@@ -35,6 +35,7 @@ add_library(renderer
     src/shadertoy/EffectPipeline.cpp
     src/ui/ui.cpp
     src/core/Log.cpp
+    
 )
 target_include_directories(renderer PUBLIC ${CMAKE_SOURCE_DIR}/include)
 target_link_libraries(renderer PUBLIC SDL3::SDL3 glm::glm VulkanHeaders vma vk-bootstrap imgui stb vulkan)
