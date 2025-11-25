@@ -23,8 +23,8 @@ namespace Renderer{
             return Swapchain::recreate_swapchain(appstate);
         else if (res != VK_SUCCESS && res != VK_SUBOPTIMAL_KHR)
             return Log::push(LogLevel::Error, "idk(draw_frame)", res);
-        else if (res != VK_SUBOPTIMAL_KHR)
-            Log::push(LogLevel::Warning, "idk, (draw_frame)");
+        // else if (res != VK_SUBOPTIMAL_KHR)
+        //     Log::push(LogLevel::Warning, "idk, (draw_frame)");
 
         if (appstate->render_data.image_in_flight[image_index] != VK_NULL_HANDLE)
             appstate->disp.waitForFences(1, &appstate->render_data.image_in_flight[image_index], VK_TRUE, UINT64_MAX);

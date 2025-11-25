@@ -9,6 +9,17 @@ if(NOT GLSLC_EXECUTABLE)
     message(FATAL_ERROR "glslc not found. Install with 'sudo apt install glslc'.")
 endif()
 
+set(SDL_OPENGL OFF CACHE BOOL "" FORCE)
+set(SDL_OPENGLES OFF CACHE BOOL "" FORCE)
+set(SDL_EGL OFF CACHE BOOL "" FORCE)
+set(SDL_VULKAN ON CACHE BOOL "" FORCE)
+
+set(SDL_AUDIO OFF CACHE BOOL "" FORCE)
+
+# set(SDL_TESTS OFF CACHE BOOL "" FORCE)
+set(SDL_SAMPLES OFF CACHE BOOL "" FORCE)
+set(SDL_RENDER OFF CACHE BOOL "" FORCE)
+
 add_subdirectory(third_party)
 
 add_library(renderer

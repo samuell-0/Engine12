@@ -3,8 +3,8 @@
 #include "core/Log.hpp"
 VkResult Pipeline::create_graphics_pipeline(AppState* appstate){
 
-    VkShaderModule vert_module = ShaderModule::create_shader_module(appstate, "/home/Aero/Documents/projects/Engine12/shaders/compiled/vert.spv");
-    VkShaderModule frag_module = ShaderModule::create_shader_module(appstate, "/home/Aero/Documents/projects/Engine12/shaders/compiled/frag.spv");
+    VkShaderModule vert_module = ShaderModule::create_shader_module(appstate, "/home/Sam/Projects/Engine12/shaders/compiled/vert.spv");
+    VkShaderModule frag_module = ShaderModule::create_shader_module(appstate, "/home/Sam/Projects/Engine12/shaders/compiled/frag.spv");
     if (vert_module == VK_NULL_HANDLE || frag_module == VK_NULL_HANDLE)
         return Log::push(LogLevel::Error, "shader problems", VK_ERROR_UNKNOWN);
 

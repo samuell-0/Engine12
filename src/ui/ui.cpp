@@ -2,17 +2,21 @@
 #include "renderer/core/CommandPool.h"
 #include "backends/imgui_impl_vulkan.h"
 #include "backends/imgui_impl_sdl3.h" // if using GLFW
-
+#include "iostream"
 #include "core/Log.hpp"
 bool UI::create_window(AppState* appstate){
     if (!SDL_Init(SDL_INIT_VIDEO)) return -1;
 
     if (!SDL_Vulkan_LoadLibrary(nullptr)) return -1;
     
-    SDL_Window* window = SDL_CreateWindow("vulkan", 800, 600, SDL_WINDOW_VULKAN|SDL_WINDOW_RESIZABLE);
+    SDL_Window* window = SDL_CreateWindow("vulkan", 1000, 600, SDL_WINDOW_VULKAN | SDL_WINDOW_BORDERLESS);
     if (window == nullptr) return -1;
 
     appstate->window = window;
+    int x, y;
+    SDL_GetWindowSizeInPixels(window, &x, &y);
+    appstate->ui_data.window_width = x;
+    appstate->ui_data.window_hight = y;
     return true;
 }
 void UI::clean_up(AppState* appstate){
@@ -85,7 +89,6 @@ VkResult UI::init_imgui(AppState* appstate){
     init_info.Allocator       = nullptr;
     // init_info.CheckVkResultFn = [](VkResult err) { VK_CHECK(err); };
     
-    // Create ImGui Pipeline
     if (!ImGui_ImplVulkan_Init(&init_info))
         return Log::push(LogLevel::Error, "unbl to init vulkan at ImGui_ImplVulkan_Init", VK_ERROR_UNKNOWN);
     
@@ -95,4 +98,69 @@ void UI::shutdown_imgui(AppState* appstate){
     ImGui_ImplVulkan_Shutdown();
     ImGui_ImplSDL3_Shutdown();
     ImGui::DestroyContext();
+}
+void draw_left_panel(AppState* appstate){
+    ImGui::PushStyleColor(ImGuiCol_ChildBg, IM_COL32(12, 12, 15, 255));
+    ImGui::BeginChild("left", ImVec2(0, appstate->ui_data.window_hight), 0, ImGuiWindowFlags_NoScrollbar);
+
+    ImGui::Text("left");
+    for (int i = 0; i < 50; i++) ImGui::Text("Line %d", i);
+
+    ImGui::EndChild();
+    ImGui::PopStyleColor();
+}
+void draw_right_panel(AppState* appstate){
+    ImGui::PushStyleColor(ImGuiCol_ChildBg, IM_COL32(12, 12, 15, 255));
+
+    ImGui::BeginChild("right", ImVec2(0, appstate->ui_data.window_hight), 0, ImGuiWindowFlags_NoScrollbar);
+
+    ImGui::Text("right");
+    for (int i = 0; i < 50; i++) ImGui::Text("Line %d", i);
+
+    ImGui::EndChild();
+    ImGui::PopStyleColor();
+}
+void draw_buttom_panel(AppState* appstate){
+    
+    ImGui::PushStyleColor(ImGuiCol_ChildBg, IM_COL32(12, 12, 15, 255));
+    ImGui::BeginChild("##BottomPanel", ImVec2(0, 0), 0, ImGuiWindowFlags_NoScrollbar);
+    ImGui::Text("BOTTOM PANEL always sticks to the ground");
+    for (int i = 0; i < 50; i++) ImGui::Text("Line %d", i);
+    ImGui::EndChild();
+    ImGui::PopStyleColor();
+}
+void draw_viewport_window(AppState* appstate){
+    ImGui::BeginChild("##TopPanel", ImVec2(0, 0), 0 | ImGuiChildFlags_ResizeY, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoBackground);
+    ImGui::Text("Top panel grows/shrinks freely");
+    for (int i = 0; i < 50; i++) ImGui::Text("Line %d", i);
+    ImGui::EndChild();
+}
+void UI::draw_ui(AppState* appstate){
+    ImGui_ImplVulkan_NewFrame();
+    ImGui_ImplSDL3_NewFrame();
+    ImGui::NewFrame();
+    ImGui::SetNextWindowPos(ImVec2(0, 0));
+    ImGui::SetNextWindowSize(ImVec2(appstate->ui_data.window_width, appstate->ui_data.window_hight));
+
+    ImGui::Begin("##FullscreenOverlay", nullptr,
+        ImGuiWindowFlags_NoTitleBar |
+        ImGuiWindowFlags_NoResize |
+        ImGuiWindowFlags_NoMove |
+        ImGuiWindowFlags_NoScrollbar |
+        ImGuiWindowFlags_NoBackground |
+        ImGuiWindowFlags_NoBringToFrontOnFocus);
+    
+    ImGui::PushStyleVar(ImGuiStyleVar_CellPadding, ImVec2(0, 0));
+    if (ImGui::BeginTable("MainLayout", 3, ImGuiTableFlags_Resizable)){
+        ImGui::TableNextRow();
+
+        ImGui::TableNextColumn(); draw_left_panel(appstate);
+        ImGui::TableNextColumn(); draw_viewport_window(appstate); draw_buttom_panel(appstate);
+        ImGui::TableNextColumn(); draw_right_panel(appstate);
+        ImGui::EndTable();
+    }
+    ImGui::PopStyleVar();
+    ImGui::End();
+    
+    ImGui::Render();
 }
