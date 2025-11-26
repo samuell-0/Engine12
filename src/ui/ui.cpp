@@ -54,9 +54,10 @@ static VkResult create_imgui_descriptor_pool(AppState* appstate){
 VkResult UI::init_imgui(AppState* appstate){
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO(); (void)io;
+    ImGuiIO& io = ImGui::GetIO();
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;   // optional
     // io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;      // optional
+    io.ConfigFlags |= ImGuiConfigFlags_IsSRGB;
 
     ImGui::StyleColorsDark();
 
@@ -83,7 +84,6 @@ VkResult UI::init_imgui(AppState* appstate){
     init_info.PipelineInfoMain.Subpass = 0;
     // Represents the number of samples per pixel used for multisample anti-aliasing (MSAA) in the Vulkan pipeline
     init_info.PipelineInfoMain.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
-    // init_info.Subpass         = 0;
     init_info.MinImageCount   = appstate->swapchain.image_count;
     init_info.ImageCount      = appstate->swapchain.image_count;
     init_info.Allocator       = nullptr;
@@ -100,67 +100,107 @@ void UI::shutdown_imgui(AppState* appstate){
     ImGui::DestroyContext();
 }
 void draw_left_panel(AppState* appstate){
-    ImGui::PushStyleColor(ImGuiCol_ChildBg, IM_COL32(12, 12, 15, 255));
+    ImGui::PushStyleColor(ImGuiCol_ChildBg, appstate->ui_data.ui_bg_color);
     ImGui::BeginChild("left", ImVec2(0, appstate->ui_data.window_hight), 0, ImGuiWindowFlags_NoScrollbar);
 
     ImGui::Text("left");
-    for (int i = 0; i < 50; i++) ImGui::Text("Line %d", i);
+    static float bg_color[3];
+    if (ImGui::ColorEdit3("bg", bg_color))
+        appstate->ui_data.ui_bg_color = IM_COL32(bg_color[0] * 255, bg_color[1] * 255, bg_color[2] * 255, 255) ;
 
     ImGui::EndChild();
     ImGui::PopStyleColor();
 }
-void draw_right_panel(AppState* appstate){
-    ImGui::PushStyleColor(ImGuiCol_ChildBg, IM_COL32(12, 12, 15, 255));
+void draw_plot_panel(AppState* appstate){
+    ImGui::PushStyleColor(ImGuiCol_ChildBg, IM_COL32(65, 69, 74, 255));
 
-    ImGui::BeginChild("right", ImVec2(0, appstate->ui_data.window_hight), 0, ImGuiWindowFlags_NoScrollbar);
-
-    ImGui::Text("right");
-    for (int i = 0; i < 50; i++) ImGui::Text("Line %d", i);
-
+    ImGui::BeginChild("##plot", ImVec2(0, 0), ImGuiChildFlags_ResizeY, ImGuiWindowFlags_NoScrollbar);
+    ImGui::Text("Top panel grows/shrinks freely");
     ImGui::EndChild();
+
+    ImGui::PopStyleColor();
+}
+void draw_editor_panel(AppState* appstate){
+    ImGui::PushStyleColor(ImGuiCol_ChildBg, IM_COL32(38, 34, 84, 255));
+
+    ImGui::BeginChild("##editor", ImVec2(0, 0), 0, ImGuiWindowFlags_NoScrollbar);
+    ImGui::Text("kuhn");
+    ImGui::EndChild();
+
     ImGui::PopStyleColor();
 }
 void draw_buttom_panel(AppState* appstate){
     
-    ImGui::PushStyleColor(ImGuiCol_ChildBg, IM_COL32(12, 12, 15, 255));
-    ImGui::BeginChild("##BottomPanel", ImVec2(0, 0), 0, ImGuiWindowFlags_NoScrollbar);
-    ImGui::Text("BOTTOM PANEL always sticks to the ground");
-    for (int i = 0; i < 50; i++) ImGui::Text("Line %d", i);
-    ImGui::EndChild();
+    ImGui::PushStyleColor(ImGuiCol_ChildBg, appstate->ui_data.ui_bg_color);
+    if (ImGui::BeginChild("##BottomPanel", ImVec2(0, 0), 0, ImGuiWindowFlags_NoScrollbar)){
+        if (ImGui::BeginTable("fvj", 2, ImGuiTableFlags_Resizable)){
+
+            ImGui::TableNextRow();
+            
+            ImGui::TableNextColumn();
+            ImGui::PushStyleColor(ImGuiCol_ChildBg, IM_COL32(65, 69, 74, 255));
+            if (ImGui::BeginChild("leftkjdzc", ImVec2(0, 0), 0, ImGuiWindowFlags_NoScrollbar)){
+                ImGui::EndChild();
+            }
+            ImGui::PopStyleColor();
+
+            ImGui::TableNextColumn();
+            ImGui::PushStyleColor(ImGuiCol_ChildBg, IM_COL32(38, 34, 84, 255));
+            if (ImGui::BeginChild("rightkjdzc", ImVec2(0, 0), 0, ImGuiWindowFlags_NoScrollbar)){
+                ImGui::EndChild();
+            }
+            ImGui::PopStyleColor();
+
+            ImGui::EndTable();
+        }
+        ImGui::EndChild();
+    }
     ImGui::PopStyleColor();
 }
 void draw_viewport_window(AppState* appstate){
-    ImGui::BeginChild("##TopPanel", ImVec2(0, 0), 0 | ImGuiChildFlags_ResizeY, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoBackground);
+    ImGui::BeginChild("##TopPanel", ImVec2(0, 0), ImGuiChildFlags_ResizeY, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoMouseInputs);
     ImGui::Text("Top panel grows/shrinks freely");
-    for (int i = 0; i < 50; i++) ImGui::Text("Line %d", i);
     ImGui::EndChild();
+}
+void draw_tab_bar(AppState* appstate){
+    ImGui::PushStyleColor(ImGuiCol_Tab, appstate->ui_data.ui_bg_color);
+    ImGui::BeginTabBar("tab");
+    ImGui::EndTabBar();
+    ImGui::PopStyleColor();
 }
 void UI::draw_ui(AppState* appstate){
     ImGui_ImplVulkan_NewFrame();
     ImGui_ImplSDL3_NewFrame();
     ImGui::NewFrame();
-    ImGui::SetNextWindowPos(ImVec2(0, 0));
-    ImGui::SetNextWindowSize(ImVec2(appstate->ui_data.window_width, appstate->ui_data.window_hight));
+ImGui::Begin("REAL SRGB TEST");
+ImGui::Text("Swapchain format: %d (50 = correct)", (int)appstate->swapchain.image_format);
 
-    ImGui::Begin("##FullscreenOverlay", nullptr,
-        ImGuiWindowFlags_NoTitleBar |
-        ImGuiWindowFlags_NoResize |
-        ImGuiWindowFlags_NoMove |
-        ImGuiWindowFlags_NoScrollbar |
-        ImGuiWindowFlags_NoBackground |
-        ImGuiWindowFlags_NoBringToFrontOnFocus);
+// This should now be PERFECT dark gray, not washed out
+ImGui::ColorButton("test", ImVec4(65/255.f, 69/255.f, 74/255.f, 1.0f), 
+                   ImGuiColorEditFlags_NoTooltip, ImVec2(200, 200));
+ImGui::End();
+    // ImGui::SetNextWindowPos(ImVec2(0, 0));
+    // ImGui::SetNextWindowSize(ImVec2(appstate->ui_data.window_width, appstate->ui_data.window_hight));
+    // ImGui::Begin("##FullscreenOverlay", nullptr,
+    //     ImGuiWindowFlags_NoTitleBar |
+    //     ImGuiWindowFlags_NoResize |
+    //     ImGuiWindowFlags_NoMove |
+    //     ImGuiWindowFlags_NoScrollbar |
+    //     ImGuiWindowFlags_NoBackground |
+    //     ImGuiWindowFlags_NoBringToFrontOnFocus);
     
-    ImGui::PushStyleVar(ImGuiStyleVar_CellPadding, ImVec2(0, 0));
-    if (ImGui::BeginTable("MainLayout", 3, ImGuiTableFlags_Resizable)){
-        ImGui::TableNextRow();
+    // ImGui::PushStyleVar(ImGuiStyleVar_CellPadding, ImVec2(0, 0));
+    // ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
+    // if (ImGui::BeginTable("MainLayout", 3, ImGuiTableFlags_Resizable)){
+    //     ImGui::TableNextRow();
 
-        ImGui::TableNextColumn(); draw_left_panel(appstate);
-        ImGui::TableNextColumn(); draw_viewport_window(appstate); draw_buttom_panel(appstate);
-        ImGui::TableNextColumn(); draw_right_panel(appstate);
-        ImGui::EndTable();
-    }
-    ImGui::PopStyleVar();
-    ImGui::End();
+    //     ImGui::TableNextColumn(); draw_left_panel(appstate);
+    //     ImGui::TableNextColumn(); draw_tab_bar(appstate); draw_viewport_window(appstate); draw_buttom_panel(appstate);
+    //     ImGui::TableNextColumn(); draw_plot_panel(appstate); draw_editor_panel(appstate);
+    //     ImGui::EndTable();
+    // }
+    // ImGui::PopStyleVar(2);
+    // ImGui::End();
     
     ImGui::Render();
 }

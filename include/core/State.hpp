@@ -2,7 +2,7 @@
 #include <SDL3/SDL_main.h>
 #include <SDL3/SDL_vulkan.h>
 #include <VkBootstrap.h>
-
+#include <imgui.h>
 #include <thread>
 
 typedef struct {
@@ -30,9 +30,7 @@ typedef struct{
     float window_width;
     float window_hight;
 
-    float left_panel_width;
-    float right_panel_width;
-    float buttom_panel_hight;
+    ImU32 ui_bg_color;
 } UiData;
 typedef struct{
     RenderData  render_data;

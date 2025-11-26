@@ -56,7 +56,7 @@ VkResult CommandPool::record_command_buffer(AppState* appstate, uint32_t i)
     render_pass_info.framebuffer = appstate->render_data.framebuffers[i];
     render_pass_info.renderArea.offset = {0, 0};
     render_pass_info.renderArea.extent = appstate->swapchain.extent;
-    VkClearValue clearColor{{{0.1f, 0.1f, 0.1f, 1.0f}}};
+    VkClearValue clearColor{{{0.0f, 0.0f, 0.0f, 1.0f}}};
     render_pass_info.clearValueCount = 1;
     render_pass_info.pClearValues = &clearColor;
 
