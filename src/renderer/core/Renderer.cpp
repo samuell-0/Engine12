@@ -3,24 +3,39 @@
 #include "backends/imgui_impl_vulkan.h"
 #include "backends/imgui_impl_sdl3.h"
 VkResult Renderer::create_render_pass(AppState* appstate){
-    VkAttachmentDescription color_attachment = {};
+    VkAttachmentDescription color_attachment{};
     color_attachment.format         = appstate->swapchain.image_format;
-    color_attachment.samples        = VK_SAMPLE_COUNT_1_BIT;
-    color_attachment.loadOp         = VK_ATTACHMENT_LOAD_OP_CLEAR;
-    color_attachment.storeOp        = VK_ATTACHMENT_STORE_OP_STORE;
+    color_attachment.samples        = VK_SAMPLE_COUNT_4_BIT;
+    color_attachment.loadOp         = VK_ATTACHMENT_LOAD_OP_CLEAR;//Every frame we clear it anyway...standard
+    color_attachment.storeOp        = VK_ATTACHMENT_STORE_OP_DONT_CARE;//We never read the MSAA image again...driver can discard it after resolve...huge performance/memory win
     color_attachment.stencilLoadOp  = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
     color_attachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-    color_attachment.initialLayout  = VK_IMAGE_LAYOUT_UNDEFINED;
-    color_attachment.finalLayout    = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+    color_attachment.initialLayout  = VK_IMAGE_LAYOUT_UNDEFINED;//First use this frame...no need to preserve old contents
+    color_attachment.finalLayout    = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;//Stays as color attachment until resolve happens automatically at subpass end
+    
+    VkAttachmentDescription resolve_attachment{};
+    resolve_attachment.format         = appstate->swapchain.image_format;
+    resolve_attachment.samples        = VK_SAMPLE_COUNT_1_BIT;
+    resolve_attachment.loadOp         = VK_ATTACHMENT_LOAD_OP_DONT_CARE;//Every frame we clear it anyway
+    resolve_attachment.storeOp        = VK_ATTACHMENT_STORE_OP_STORE;//We never read the MSAA image again...driver can discard it after resolve...huge performance/memory win
+    resolve_attachment.initialLayout  = VK_IMAGE_LAYOUT_UNDEFINED;//First use this frame...no need to preserve old contents
+    resolve_attachment.finalLayout    = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;//Stays as color attachment until resolve happens automatically at subpass end
 
-    VkAttachmentReference color_attachment_ref = {};
-    color_attachment_ref.attachment = 0;
-    color_attachment_ref.layout     = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+    VkAttachmentDescription attachments[] = { color_attachment, resolve_attachment };
+
+    VkAttachmentReference color_attachment_ref{};
+    color_attachment_ref.attachment   = 0;
+    color_attachment_ref.layout       = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+    VkAttachmentReference resolve_attachment_ref{};
+    resolve_attachment_ref.attachment = 1;
+    resolve_attachment_ref.layout     = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
     VkSubpassDescription subpass    = {};
     subpass.pipelineBindPoint       = VK_PIPELINE_BIND_POINT_GRAPHICS;
     subpass.colorAttachmentCount    = 1;
     subpass.pColorAttachments       = &color_attachment_ref;
+    subpass.pResolveAttachments     = &resolve_attachment_ref;
 
     VkSubpassDependency dependency  = {};
     dependency.srcSubpass           = VK_SUBPASS_EXTERNAL;
@@ -30,10 +45,10 @@ VkResult Renderer::create_render_pass(AppState* appstate){
     dependency.dstStageMask         = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
     dependency.dstAccessMask        = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
 
-    VkRenderPassCreateInfo render_pass_info = {};
+    VkRenderPassCreateInfo render_pass_info{};
     render_pass_info.sType                  = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-    render_pass_info.attachmentCount        = 1;
-    render_pass_info.pAttachments           = &color_attachment;
+    render_pass_info.attachmentCount        = 2;
+    render_pass_info.pAttachments           = attachments;
     render_pass_info.subpassCount           = 1;
     render_pass_info.pSubpasses             = &subpass;
     render_pass_info.dependencyCount        = 1;
@@ -108,6 +123,10 @@ void Renderer::clean_up(AppState* appstate){
     }
 
     appstate->swapchain.destroy_image_views(appstate->render_data.swapchain_image_views);
+
+    appstate->disp.destroyImageView(appstate->render_data.msaa_image_view, nullptr);
+    appstate->disp.destroyImage(appstate->render_data.msaa_image, nullptr);
+    appstate->disp.freeMemory(appstate->render_data.msaa_memory, nullptr);
 
     vkb::destroy_swapchain(appstate->swapchain);
     vkb::destroy_device(appstate->device);

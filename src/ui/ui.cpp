@@ -1,9 +1,44 @@
 #include "ui/ui.h"
 #include "renderer/core/CommandPool.h"
 #include "backends/imgui_impl_vulkan.h"
-#include "backends/imgui_impl_sdl3.h" // if using GLFW
+#include "backends/imgui_impl_sdl3.h"
 #include "iostream"
 #include "core/Log.hpp"
+#include "imgui.h"
+
+void set_custom_theming()
+{
+    ImGuiStyle& style = ImGui::GetStyle();
+
+    style.ScrollbarRounding   = 2.0f;
+    style.ScrollbarSize = 6.0f;
+    style.Colors[ImGuiCol_ScrollbarBg]          = ImVec4(0.0f, 0.0f, 0.0f, 0.00f);
+    style.Colors[ImGuiCol_ScrollbarGrab]        = ImVec4(0.40f, 0.63f, 0.87f, 1.00f);
+    style.Colors[ImGuiCol_ScrollbarGrabHovered] = ImVec4(0.40f, 0.63f, 0.87f, 1.00f);
+    style.Colors[ImGuiCol_ScrollbarGrabActive]  = ImVec4(0.40f, 0.63f, 0.87f, 1.00f);
+
+    style.Colors[ImGuiCol_Text]                   =  ImVec4(0.40f, 0.63f, 0.87f, 1.00f);
+
+    style.Colors[ImGuiCol_MenuBarBg]              = ImVec4(10.0f / 255, 10.0f / 255, 10.0f / 255, 1.00f);
+    style.Colors[ImGuiCol_TableBorderLight]       = ImVec4(10.0f / 255, 10.0f / 255, 10.0f / 255, 1.00f);
+
+    style.Colors[ImGuiCol_ResizeGrip]           = ImVec4(0.0f, 0.0f, 0.0f, 0.00f);
+    style.Colors[ImGuiCol_ResizeGripHovered]    = ImVec4(0.0f, 0.0f, 0.0f, 0.00f);
+    style.Colors[ImGuiCol_ResizeGripActive]     = ImVec4(0.0f, 0.0f, 0.0f, 0.00f);
+
+    style.Colors[ImGuiCol_Tab]                    = ImVec4(16.0f / 255, 28.0f / 255, 33.0f / 255, 255);
+    style.Colors[ImGuiCol_TabSelected]            = ImVec4(16.0f / 255, 28.0f / 255, 33.0f / 255, 255);
+    style.Colors[ImGuiCol_TabSelectedOverline]    = ImVec4(16.0f / 255, 28.0f / 255, 33.0f / 255, 255);
+    style.Colors[ImGuiCol_TabActive]              = ImVec4(16.0f / 255, 28.0f / 255, 33.0f / 255, 255);
+    style.Colors[ImGuiCol_TabHovered]              = ImVec4(16.0f / 255, 28.0f / 255, 33.0f / 255, 255);
+
+    style.CellPadding     = ImVec2(0.0f, 0.0f);
+    style.ItemSpacing     = ImVec2(0.0f, 0.0f);
+    style.FrameBorderSize = 10.0f;
+    style.TabRounding     = 1.0f;
+    style.TabMinWidthBase = 70.0f;
+}
+
 bool UI::create_window(AppState* appstate){
     if (!SDL_Init(SDL_INIT_VIDEO)) return -1;
 
@@ -19,11 +54,13 @@ bool UI::create_window(AppState* appstate){
     appstate->ui_data.window_hight = y;
     return true;
 }
+
 void UI::clean_up(AppState* appstate){
     SDL_DestroyWindow(appstate->window);
     SDL_free(appstate);
     SDL_Vulkan_UnloadLibrary();
 }
+
 static VkResult create_imgui_descriptor_pool(AppState* appstate){
     VkDescriptorPoolSize pool_sizes[] = {
         { VK_DESCRIPTOR_TYPE_SAMPLER,                1000 },
@@ -51,15 +88,19 @@ static VkResult create_imgui_descriptor_pool(AppState* appstate){
         return Log::push(LogLevel::Warning, "unbl to ctr descriptor pool", res);
     return VK_SUCCESS;
 }
+
 VkResult UI::init_imgui(AppState* appstate){
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;   // optional
-    // io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;      // optional
-    io.ConfigFlags |= ImGuiConfigFlags_IsSRGB;
+    // io.ConfigFlags |= ImGuiConfigFlags_IsSRGB;
 
+    ImGuiStyle& style = ImGui::GetStyle();
+    style.Colors[ImGuiCol_WindowBg] = ImVec4(0,0,0,1);
+    style.Colors[ImGuiCol_ChildBg]  = ImVec4(0,0,0,0);
+    style.Alpha = 1.0f;
     ImGui::StyleColorsDark();
+    set_custom_theming();
 
     if (!ImGui_ImplSDL3_InitForVulkan(appstate->window))
         return Log::push(LogLevel::Error, "at ImGui_ImplSDL3_InitForVulkan", VK_ERROR_UNKNOWN);
@@ -81,9 +122,9 @@ VkResult UI::init_imgui(AppState* appstate){
     // accidentally render ImGui with the app pipeline, depth/write state
     // mismatches can hide the triangle.
     init_info.PipelineInfoMain.RenderPass = appstate->render_data.render_pass;
-    init_info.PipelineInfoMain.Subpass = 0;
+    init_info.PipelineInfoMain.Subpass    = 0;
     // Represents the number of samples per pixel used for multisample anti-aliasing (MSAA) in the Vulkan pipeline
-    init_info.PipelineInfoMain.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
+    init_info.PipelineInfoMain.MSAASamples = VK_SAMPLE_COUNT_4_BIT;
     init_info.MinImageCount   = appstate->swapchain.image_count;
     init_info.ImageCount      = appstate->swapchain.image_count;
     init_info.Allocator       = nullptr;
@@ -94,59 +135,74 @@ VkResult UI::init_imgui(AppState* appstate){
     
     return VK_SUCCESS;
 }
+
 void UI::shutdown_imgui(AppState* appstate){
     ImGui_ImplVulkan_Shutdown();
     ImGui_ImplSDL3_Shutdown();
     ImGui::DestroyContext();
 }
+
 void draw_left_panel(AppState* appstate){
-    ImGui::PushStyleColor(ImGuiCol_ChildBg, appstate->ui_data.ui_bg_color);
-    ImGui::BeginChild("left", ImVec2(0, appstate->ui_data.window_hight), 0, ImGuiWindowFlags_NoScrollbar);
-
-    ImGui::Text("left");
-    static float bg_color[3];
-    if (ImGui::ColorEdit3("bg", bg_color))
-        appstate->ui_data.ui_bg_color = IM_COL32(bg_color[0] * 255, bg_color[1] * 255, bg_color[2] * 255, 255) ;
-
+    ImGui::PushStyleColor(ImGuiCol_ChildBg, IM_COL32(10, 10, 10, 255));
+    ImGui::BeginChild("left", ImVec2(0, appstate->ui_data.window_hight));
+    if (ImGui::BeginTabBar("rsv")){
+        if (ImGui::BeginTabItem("sac") ){
+            for (int i = 0; i < 100; i++) ImGui::Text(" ");
+            ImGui::EndTabItem();
+        }
+        if (ImGui::BeginTabItem("sadccCSEFc") ){
+            for (int i = 0; i < 100; i++) ImGui::Text(" ");
+            ImGui::EndTabItem();
+        }
+        if (ImGui::BeginTabItem("savdrjfnksdllc") ){
+            for (int i = 0; i < 100; i++) ImGui::Text(" ");
+            ImGui::EndTabItem();
+        }
+        ImGui::EndTabBar();
+    }
     ImGui::EndChild();
     ImGui::PopStyleColor();
 }
+
 void draw_plot_panel(AppState* appstate){
-    ImGui::PushStyleColor(ImGuiCol_ChildBg, IM_COL32(65, 69, 74, 255));
+    ImGui::PushStyleColor(ImGuiCol_ChildBg, IM_COL32(16, 28, 33, 255));
 
-    ImGui::BeginChild("##plot", ImVec2(0, 0), ImGuiChildFlags_ResizeY, ImGuiWindowFlags_NoScrollbar);
-    ImGui::Text("Top panel grows/shrinks freely");
+    ImGui::BeginChild("##plot", ImVec2(0, 0), ImGuiChildFlags_ResizeY);
+    for (int i = 0; i < 100; i++) ImGui::Text(" ");
     ImGui::EndChild();
 
     ImGui::PopStyleColor();
 }
+
 void draw_editor_panel(AppState* appstate){
-    ImGui::PushStyleColor(ImGuiCol_ChildBg, IM_COL32(38, 34, 84, 255));
+    ImGui::PushStyleColor(ImGuiCol_ChildBg, IM_COL32(10, 10, 10, 255));
 
-    ImGui::BeginChild("##editor", ImVec2(0, 0), 0, ImGuiWindowFlags_NoScrollbar);
-    ImGui::Text("kuhn");
+    ImGui::BeginChild("##editor", ImVec2(0, 0));
+    for (int i = 0; i < 100; i++) ImGui::Text(" ");
     ImGui::EndChild();
 
     ImGui::PopStyleColor();
 }
+
 void draw_buttom_panel(AppState* appstate){
     
-    ImGui::PushStyleColor(ImGuiCol_ChildBg, appstate->ui_data.ui_bg_color);
-    if (ImGui::BeginChild("##BottomPanel", ImVec2(0, 0), 0, ImGuiWindowFlags_NoScrollbar)){
+    if (ImGui::BeginChild("##BottomPanel", ImVec2(0, 0))){
         if (ImGui::BeginTable("fvj", 2, ImGuiTableFlags_Resizable)){
 
             ImGui::TableNextRow();
             
             ImGui::TableNextColumn();
-            ImGui::PushStyleColor(ImGuiCol_ChildBg, IM_COL32(65, 69, 74, 255));
-            if (ImGui::BeginChild("leftkjdzc", ImVec2(0, 0), 0, ImGuiWindowFlags_NoScrollbar)){
+            ImGui::PushStyleColor(ImGuiCol_ChildBg, IM_COL32(16, 28, 33, 255));
+            if (ImGui::BeginChild("leftkjdzc", ImVec2(0, 0))){
+                for (int i = 0; i < 100; i++) ImGui::Text(" ");
                 ImGui::EndChild();
             }
             ImGui::PopStyleColor();
 
             ImGui::TableNextColumn();
-            ImGui::PushStyleColor(ImGuiCol_ChildBg, IM_COL32(38, 34, 84, 255));
-            if (ImGui::BeginChild("rightkjdzc", ImVec2(0, 0), 0, ImGuiWindowFlags_NoScrollbar)){
+            ImGui::PushStyleColor(ImGuiCol_ChildBg, IM_COL32(10, 10, 10, 255));
+            if (ImGui::BeginChild("rightkjdzc", ImVec2(0, 0))){
+                for (int i = 0; i < 100; i++) ImGui::Text(" ");
                 ImGui::EndChild();
             }
             ImGui::PopStyleColor();
@@ -155,52 +211,99 @@ void draw_buttom_panel(AppState* appstate){
         }
         ImGui::EndChild();
     }
-    ImGui::PopStyleColor();
 }
+
 void draw_viewport_window(AppState* appstate){
-    ImGui::BeginChild("##TopPanel", ImVec2(0, 0), ImGuiChildFlags_ResizeY, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoMouseInputs);
-    ImGui::Text("Top panel grows/shrinks freely");
+    ImGui::BeginChild("##TopPanel", ImVec2(0, 0), ImGuiChildFlags_ResizeY, ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoMouseInputs | ImGuiWindowFlags_NoScrollbar);
+    for (int i = 0; i < 100; i++) ImGui::Text(" ");
     ImGui::EndChild();
 }
-void draw_tab_bar(AppState* appstate){
-    ImGui::PushStyleColor(ImGuiCol_Tab, appstate->ui_data.ui_bg_color);
-    ImGui::BeginTabBar("tab");
-    ImGui::EndTabBar();
-    ImGui::PopStyleColor();
+
+void draw_menu_bar_m(AppState* appstate){
+    ImGui::BeginChild("LeftPanel", ImVec2(0, 1), 0, ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
+
+    ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(10, 0));
+    if (ImGui::BeginMenuBar()){
+        float width = ImGui::GetWindowWidth();
+        ImGui::MenuItem("New"); ImGui::Separator();
+        ImGui::MenuItem("Open"); ImGui::Separator();
+        ImGui::MenuItem("Save"); ImGui::Separator();
+        if (ImGui::BeginMenu("Edit"))
+        {
+            ImGui::MenuItem("Copy");
+            ImGui::MenuItem("Paste");
+            ImGui::EndMenu();
+        }
+        ImGui::Separator();
+        if (ImGui::BeginMenu("Tools"))
+        {
+            ImGui::MenuItem("Recompile Shaders");
+            ImGui::EndMenu();
+        }
+
+        ImGui::EndMenuBar();
+    }
+    ImGui::PopStyleVar();
+    ImGui::EndChild();
 }
+
+void draw_menu_bar_r(AppState* appstate){
+    ImGui::BeginChild("LeftfgPanel", ImVec2(0, 1), 0, ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
+
+    ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(10, 0));
+    if (ImGui::BeginMenuBar()){
+        float width = ImGui::GetWindowWidth();
+        ImGui::MenuItem("New"); ImGui::Separator();
+        ImGui::MenuItem("Open"); ImGui::Separator();
+        ImGui::MenuItem("Save"); ImGui::Separator();
+        if (ImGui::BeginMenu("Edit"))
+        {
+            ImGui::MenuItem("Copy");
+            ImGui::MenuItem("Paste");
+            ImGui::EndMenu();
+        }
+        ImGui::Separator();
+        if (ImGui::BeginMenu("Tools"))
+        {
+            ImGui::MenuItem("Recompile Shaders");
+            ImGui::EndMenu();
+        }
+
+        ImGui::EndMenuBar();
+    }
+    ImGui::PopStyleVar();
+    ImGui::EndChild();
+}
+
 void UI::draw_ui(AppState* appstate){
+
     ImGui_ImplVulkan_NewFrame();
     ImGui_ImplSDL3_NewFrame();
     ImGui::NewFrame();
-ImGui::Begin("REAL SRGB TEST");
-ImGui::Text("Swapchain format: %d (50 = correct)", (int)appstate->swapchain.image_format);
-
-// This should now be PERFECT dark gray, not washed out
-ImGui::ColorButton("test", ImVec4(65/255.f, 69/255.f, 74/255.f, 1.0f), 
-                   ImGuiColorEditFlags_NoTooltip, ImVec2(200, 200));
-ImGui::End();
-    // ImGui::SetNextWindowPos(ImVec2(0, 0));
-    // ImGui::SetNextWindowSize(ImVec2(appstate->ui_data.window_width, appstate->ui_data.window_hight));
-    // ImGui::Begin("##FullscreenOverlay", nullptr,
-    //     ImGuiWindowFlags_NoTitleBar |
-    //     ImGuiWindowFlags_NoResize |
-    //     ImGuiWindowFlags_NoMove |
-    //     ImGuiWindowFlags_NoScrollbar |
-    //     ImGuiWindowFlags_NoBackground |
-    //     ImGuiWindowFlags_NoBringToFrontOnFocus);
     
-    // ImGui::PushStyleVar(ImGuiStyleVar_CellPadding, ImVec2(0, 0));
-    // ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
-    // if (ImGui::BeginTable("MainLayout", 3, ImGuiTableFlags_Resizable)){
-    //     ImGui::TableNextRow();
+    // ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
 
-    //     ImGui::TableNextColumn(); draw_left_panel(appstate);
-    //     ImGui::TableNextColumn(); draw_tab_bar(appstate); draw_viewport_window(appstate); draw_buttom_panel(appstate);
-    //     ImGui::TableNextColumn(); draw_plot_panel(appstate); draw_editor_panel(appstate);
-    //     ImGui::EndTable();
-    // }
-    // ImGui::PopStyleVar(2);
-    // ImGui::End();
-    
+    ImGui::SetNextWindowPos(ImVec2(0, 0));
+
+    ImGui::SetNextWindowSize(ImVec2(appstate->ui_data.window_width, appstate->ui_data.window_hight));
+    ImGui::Begin("##FullscreenOverlay", nullptr,
+        ImGuiWindowFlags_NoDecoration |
+        ImGuiWindowFlags_NoMove |
+        ImGuiWindowFlags_NoScrollWithMouse |
+        ImGuiWindowFlags_NoBackground |
+        ImGuiWindowFlags_NoBringToFrontOnFocus);
+
+    // ImGui::PushStyleColor(ImGuiCol_TableBorderLight, IM_COL32(100, 175, 203, 255));
+    if (ImGui::BeginTable("MainLayout", 3, ImGuiTableFlags_Resizable)){
+        ImGui::TableNextRow();
+
+        ImGui::TableNextColumn(); draw_left_panel(appstate);
+        ImGui::TableNextColumn(); draw_menu_bar_m(appstate); draw_viewport_window(appstate); draw_buttom_panel(appstate);
+        ImGui::TableNextColumn(); draw_menu_bar_r(appstate); draw_plot_panel(appstate); draw_editor_panel(appstate);
+        ImGui::EndTable();
+    }
+    ImGui::End();
+
+    // ImGui::PopStyleVar();
     ImGui::Render();
 }

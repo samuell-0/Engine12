@@ -9,8 +9,11 @@ typedef struct {
     VkQueue                         graphics_queue;
     VkQueue                         present_queue;
 
-    std::vector<VkImage>            swapchain_images;
+    std::vector<VkImage>            swapchain_images;//for attachment #1 ie, resolve_attachment
     std::vector<VkImageView>        swapchain_image_views;
+    VkImage                         msaa_image;//for attachment #0 ie, color_attachment for msaa...only one needed
+    VkImageView                     msaa_image_view;
+    VkDeviceMemory                  msaa_memory;
     std::vector<VkFramebuffer>      framebuffers;
 
     VkRenderPass                    render_pass;

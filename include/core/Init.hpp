@@ -30,12 +30,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
     if (CommandPool::create_command_pool(as)      != VK_SUCCESS)      return SDL_APP_FAILURE;
     if (CommandPool::allocate_command_buffers(as) != VK_SUCCESS)      return SDL_APP_FAILURE;
     if (Renderer::create_sync_objects(as)         != VK_SUCCESS)      return SDL_APP_FAILURE;
-// // somewhere after you create your framebuffers / image views
-// for (uint32_t i = 0; i < as->swapchain.image_count; i++) {
-//     VkImageView view = as->swapchain.get_image_views().value()[i];
-//     // If you have access to the create info, or just print the swapchain format again:
-//     printf("Swapchain image %d view uses format: %d\n", i, (int)as->swapchain.image_format);
-// }
-    if (UI::init_imgui(as)                      != VK_SUCCESS)      return SDL_APP_FAILURE;
+    if (UI::init_imgui(as)                        != VK_SUCCESS)      return SDL_APP_FAILURE;
+    // printf("Actual swapchain format: %d\n", (int)as->swapchain.image_format);
     return SDL_APP_CONTINUE;
 }

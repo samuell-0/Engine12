@@ -4,8 +4,7 @@
 #include <imgui.h>
 #include "backends/imgui_impl_vulkan.h"
 
-VkResult CommandPool::create_command_pool(AppState *appstate)
-{
+VkResult CommandPool::create_command_pool(AppState *appstate){
     VkCommandPoolCreateInfo pool_info = {};
     pool_info.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
     // Allow resetting/re-recording command buffers individually. This is
@@ -22,8 +21,8 @@ VkResult CommandPool::create_command_pool(AppState *appstate)
         return Log::push(LogLevel::Error, "unbl to crt cmd pool", res);
     return VK_SUCCESS;
 }
-VkResult CommandPool::allocate_command_buffers(AppState *appstate)
-{
+
+VkResult CommandPool::allocate_command_buffers(AppState *appstate){
     appstate->render_data.command_buffers.resize(appstate->render_data.framebuffers.size());
 
     VkCommandBufferAllocateInfo allocInfo = {};
@@ -41,8 +40,8 @@ VkResult CommandPool::allocate_command_buffers(AppState *appstate)
 
     return VK_SUCCESS;
 }
-VkResult CommandPool::record_command_buffer(AppState* appstate, uint32_t i)
-{
+
+VkResult CommandPool::record_command_buffer(AppState* appstate, uint32_t i){
     VkCommandBufferBeginInfo begin_info = {};
     begin_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 
@@ -56,7 +55,7 @@ VkResult CommandPool::record_command_buffer(AppState* appstate, uint32_t i)
     render_pass_info.framebuffer = appstate->render_data.framebuffers[i];
     render_pass_info.renderArea.offset = {0, 0};
     render_pass_info.renderArea.extent = appstate->swapchain.extent;
-    VkClearValue clearColor{{{0.0f, 0.0f, 0.0f, 1.0f}}};
+    VkClearValue clearColor{{{1.0f, 1.0f, 1.0f, 1.0f}}};
     render_pass_info.clearValueCount = 1;
     render_pass_info.pClearValues = &clearColor;
 
@@ -101,8 +100,8 @@ VkResult CommandPool::record_command_buffer(AppState* appstate, uint32_t i)
 
     return VK_SUCCESS;
 }
-VkCommandBuffer CommandPool::begin_single_time_command(AppState *appstate)
-{
+
+VkCommandBuffer CommandPool::begin_single_time_command(AppState *appstate){
     VkCommandBufferAllocateInfo allocInfo = {};
     allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
     allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
@@ -122,8 +121,8 @@ VkCommandBuffer CommandPool::begin_single_time_command(AppState *appstate)
         Log::push(LogLevel::Warning, "unbl to bgn cmd buffer(begin_single_time_command)");
     return cmd;
 }
-VkResult CommandPool::end_single_time_command(AppState *appstate, VkCommandBuffer commandBuffer)
-{
+
+VkResult CommandPool::end_single_time_command(AppState *appstate, VkCommandBuffer commandBuffer){
     VkResult res = appstate->disp.endCommandBuffer(commandBuffer);
     if (res != VK_SUCCESS)
         return Log::push(LogLevel::Error, "unbl to end cmd buffer(end_single_time_command)");

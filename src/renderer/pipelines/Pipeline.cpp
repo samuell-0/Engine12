@@ -9,16 +9,16 @@ VkResult Pipeline::create_graphics_pipeline(AppState* appstate){
         return Log::push(LogLevel::Error, "shader problems", VK_ERROR_UNKNOWN);
 
     VkPipelineShaderStageCreateInfo vert_stage_info = {};
-    vert_stage_info.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-    vert_stage_info.stage = VK_SHADER_STAGE_VERTEX_BIT;
-    vert_stage_info.module = vert_module;
-    vert_stage_info.pName = "main";
+    vert_stage_info.sType   = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+    vert_stage_info.stage   = VK_SHADER_STAGE_VERTEX_BIT;
+    vert_stage_info.module  = vert_module;
+    vert_stage_info.pName   = "main";
 
     VkPipelineShaderStageCreateInfo frag_stage_info = {};
-    frag_stage_info.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-    frag_stage_info.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
-    frag_stage_info.module = frag_module;
-    frag_stage_info.pName = "main";
+    frag_stage_info.sType   = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+    frag_stage_info.stage   = VK_SHADER_STAGE_FRAGMENT_BIT;
+    frag_stage_info.module  = frag_module;
+    frag_stage_info.pName   = "main";
 
     VkPipelineShaderStageCreateInfo shader_stages[] = { vert_stage_info, frag_stage_info };
 
@@ -32,17 +32,15 @@ VkResult Pipeline::create_graphics_pipeline(AppState* appstate){
     input_assembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
     input_assembly.primitiveRestartEnable = VK_FALSE;
 
-    VkViewport viewport = {};
-    viewport.x = 0.0f;
-    viewport.y = 0.0f;
-    VkSwapchainKHR s;
-    
-    viewport.width = (float)appstate->swapchain.extent.width;
-    viewport.height = (float)appstate->swapchain.extent.height;
-    viewport.minDepth = 0.0f;
-    viewport.maxDepth = 1.0f;
+    VkViewport viewport{};
+    viewport.x          = 0.0f;
+    viewport.y          = 0.0f;
+    viewport.width      = (float)appstate->swapchain.extent.width;
+    viewport.height     = (float)appstate->swapchain.extent.height;
+    viewport.minDepth   = 0.0f;
+    viewport.maxDepth   = 1.0f;
 
-    VkRect2D scissor = {};
+    VkRect2D scissor{};
     scissor.offset = { 0, 0 };
     scissor.extent = appstate->swapchain.extent;
 
@@ -64,9 +62,9 @@ VkResult Pipeline::create_graphics_pipeline(AppState* appstate){
     rasterizer.depthBiasEnable = VK_FALSE;
 
     VkPipelineMultisampleStateCreateInfo multisampling = {};
-    multisampling.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
-    multisampling.sampleShadingEnable = VK_FALSE;
-    multisampling.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
+    multisampling.sType                 = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
+    multisampling.sampleShadingEnable   = VK_FALSE;
+    multisampling.rasterizationSamples  = VK_SAMPLE_COUNT_4_BIT;
 
     VkPipelineColorBlendAttachmentState colorBlendAttachment = {};
     colorBlendAttachment.colorWriteMask =
