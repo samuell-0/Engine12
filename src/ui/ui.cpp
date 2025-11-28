@@ -1,42 +1,46 @@
 #include "ui/ui.h"
 #include "renderer/core/CommandPool.h"
-#include "backends/imgui_impl_vulkan.h"
-#include "backends/imgui_impl_sdl3.h"
-#include "iostream"
 #include "core/Log.hpp"
-#include "imgui.h"
-
-void set_custom_theming()
-{
+ImVec4 vec4(float red, float green, float blue, float alpha){
+    return ImVec4(red / 255, green / 255, blue / 255, alpha / 255);
+}
+void set_custom_theming(){
     ImGuiStyle& style = ImGui::GetStyle();
+    
+    style.ButtonTextAlign = ImVec2(0.0f, 0.5f);
+    style.CellPadding     = ImVec2(0.0f, 0.0f);
+    style.ItemSpacing     = ImVec2(0.0f, 0.0f);
 
-    style.ScrollbarRounding   = 2.0f;
-    style.ScrollbarSize = 6.0f;
+    style.TabRounding     = 1.0f;
+    style.TabMinWidthBase = 70.0f;
+    // style.AntiAliasedFill = true;// NOTE: GPU
+    // style.ChildRounding   = 10.0f;
+    style.ScrollbarRounding = 2.0f;
+    style.ScrollbarSize     = 6.0f;
+
     style.Colors[ImGuiCol_ScrollbarBg]          = ImVec4(0.0f, 0.0f, 0.0f, 0.00f);
     style.Colors[ImGuiCol_ScrollbarGrab]        = ImVec4(0.40f, 0.63f, 0.87f, 1.00f);
     style.Colors[ImGuiCol_ScrollbarGrabHovered] = ImVec4(0.40f, 0.63f, 0.87f, 1.00f);
     style.Colors[ImGuiCol_ScrollbarGrabActive]  = ImVec4(0.40f, 0.63f, 0.87f, 1.00f);
+    style.Colors[ImGuiCol_Text]                 = vec4(160, 215, 237, 255);
 
-    style.Colors[ImGuiCol_Text]                   =  ImVec4(0.40f, 0.63f, 0.87f, 1.00f);
+    style.Colors[ImGuiCol_MenuBarBg]            = vec4(10, 10, 10, 255);
 
-    style.Colors[ImGuiCol_MenuBarBg]              = ImVec4(10.0f / 255, 10.0f / 255, 10.0f / 255, 1.00f);
-    style.Colors[ImGuiCol_TableBorderLight]       = ImVec4(10.0f / 255, 10.0f / 255, 10.0f / 255, 1.00f);
+    style.Colors[ImGuiCol_TableBorderLight]     = vec4(10, 10, 10, 255);
 
     style.Colors[ImGuiCol_ResizeGrip]           = ImVec4(0.0f, 0.0f, 0.0f, 0.00f);
     style.Colors[ImGuiCol_ResizeGripHovered]    = ImVec4(0.0f, 0.0f, 0.0f, 0.00f);
-    style.Colors[ImGuiCol_ResizeGripActive]     = ImVec4(0.0f, 0.0f, 0.0f, 0.00f);
+    style.Colors[ImGuiCol_ResizeGripActive]     = ImVec4(0.0f, 0.0f, 0.0f, 1.00f);
 
-    style.Colors[ImGuiCol_Tab]                    = ImVec4(16.0f / 255, 28.0f / 255, 33.0f / 255, 255);
-    style.Colors[ImGuiCol_TabSelected]            = ImVec4(16.0f / 255, 28.0f / 255, 33.0f / 255, 255);
-    style.Colors[ImGuiCol_TabSelectedOverline]    = ImVec4(16.0f / 255, 28.0f / 255, 33.0f / 255, 255);
-    style.Colors[ImGuiCol_TabActive]              = ImVec4(16.0f / 255, 28.0f / 255, 33.0f / 255, 255);
-    style.Colors[ImGuiCol_TabHovered]              = ImVec4(16.0f / 255, 28.0f / 255, 33.0f / 255, 255);
+    style.Colors[ImGuiCol_Tab]                  = vec4(0, 0, 0, 0);
+    style.Colors[ImGuiCol_TabSelected]          = vec4(100, 100, 150, 100);
+    style.Colors[ImGuiCol_TabSelectedOverline]  = vec4(0, 0, 0, 0);
+    style.Colors[ImGuiCol_TabHovered]           = vec4(100, 100, 150, 150);
 
-    style.CellPadding     = ImVec2(0.0f, 0.0f);
-    style.ItemSpacing     = ImVec2(0.0f, 0.0f);
-    style.FrameBorderSize = 10.0f;
-    style.TabRounding     = 1.0f;
-    style.TabMinWidthBase = 70.0f;
+    style.Colors[ImGuiCol_Button]               = vec4(16, 28, 33, 0);
+    style.Colors[ImGuiCol_ButtonActive]         = vec4(100, 100, 150, 76);
+    style.Colors[ImGuiCol_ButtonHovered]        = vec4(100, 100, 150, 130);
+
 }
 
 bool UI::create_window(AppState* appstate){
@@ -44,7 +48,7 @@ bool UI::create_window(AppState* appstate){
 
     if (!SDL_Vulkan_LoadLibrary(nullptr)) return -1;
     
-    SDL_Window* window = SDL_CreateWindow("vulkan", 1000, 600, SDL_WINDOW_VULKAN | SDL_WINDOW_BORDERLESS);
+    SDL_Window* window = SDL_CreateWindow("vulkan", 1000, 600, SDL_WINDOW_VULKAN);
     if (window == nullptr) return -1;
 
     appstate->window = window;
@@ -94,12 +98,20 @@ VkResult UI::init_imgui(AppState* appstate){
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
     // io.ConfigFlags |= ImGuiConfigFlags_IsSRGB;
+    ImFontConfig config;
+    config.OversampleH = 3;
+    config.OversampleV = 3;
+    config.PixelSnapH = true;
+    io.Fonts->AddFontFromFileTTF("/home/Sam/Projects/Engine12/resources/Roboto_Condensed-Italic.ttf", 14.0f, &config);
 
-    ImGuiStyle& style = ImGui::GetStyle();
-    style.Colors[ImGuiCol_WindowBg] = ImVec4(0,0,0,1);
-    style.Colors[ImGuiCol_ChildBg]  = ImVec4(0,0,0,0);
-    style.Alpha = 1.0f;
-    ImGui::StyleColorsDark();
+    static const ImWchar icon_ranges[] = { 0xf000, 0xf8ff, 0 }; // FontAwesome range
+    ImFontConfig config_icons;
+    config_icons.MergeMode = true;           // <<-- important: merge into previous font
+    config_icons.PixelSnapH = true;
+    config_icons.GlyphMinAdvanceX = 20.0f;   // optional: make icons same width
+    io.Fonts->AddFontFromFileTTF("/home/Sam/Projects/Engine12/resources/fa-solid-900.ttf", 18.0f, &config_icons, icon_ranges);
+
+    ImGui::StyleColorsClassic();
     set_custom_theming();
 
     if (!ImGui_ImplSDL3_InitForVulkan(appstate->window))
@@ -142,168 +154,3 @@ void UI::shutdown_imgui(AppState* appstate){
     ImGui::DestroyContext();
 }
 
-void draw_left_panel(AppState* appstate){
-    ImGui::PushStyleColor(ImGuiCol_ChildBg, IM_COL32(10, 10, 10, 255));
-    ImGui::BeginChild("left", ImVec2(0, appstate->ui_data.window_hight));
-    if (ImGui::BeginTabBar("rsv")){
-        if (ImGui::BeginTabItem("sac") ){
-            for (int i = 0; i < 100; i++) ImGui::Text(" ");
-            ImGui::EndTabItem();
-        }
-        if (ImGui::BeginTabItem("sadccCSEFc") ){
-            for (int i = 0; i < 100; i++) ImGui::Text(" ");
-            ImGui::EndTabItem();
-        }
-        if (ImGui::BeginTabItem("savdrjfnksdllc") ){
-            for (int i = 0; i < 100; i++) ImGui::Text(" ");
-            ImGui::EndTabItem();
-        }
-        ImGui::EndTabBar();
-    }
-    ImGui::EndChild();
-    ImGui::PopStyleColor();
-}
-
-void draw_plot_panel(AppState* appstate){
-    ImGui::PushStyleColor(ImGuiCol_ChildBg, IM_COL32(16, 28, 33, 255));
-
-    ImGui::BeginChild("##plot", ImVec2(0, 0), ImGuiChildFlags_ResizeY);
-    for (int i = 0; i < 100; i++) ImGui::Text(" ");
-    ImGui::EndChild();
-
-    ImGui::PopStyleColor();
-}
-
-void draw_editor_panel(AppState* appstate){
-    ImGui::PushStyleColor(ImGuiCol_ChildBg, IM_COL32(10, 10, 10, 255));
-
-    ImGui::BeginChild("##editor", ImVec2(0, 0));
-    for (int i = 0; i < 100; i++) ImGui::Text(" ");
-    ImGui::EndChild();
-
-    ImGui::PopStyleColor();
-}
-
-void draw_buttom_panel(AppState* appstate){
-    
-    if (ImGui::BeginChild("##BottomPanel", ImVec2(0, 0))){
-        if (ImGui::BeginTable("fvj", 2, ImGuiTableFlags_Resizable)){
-
-            ImGui::TableNextRow();
-            
-            ImGui::TableNextColumn();
-            ImGui::PushStyleColor(ImGuiCol_ChildBg, IM_COL32(16, 28, 33, 255));
-            if (ImGui::BeginChild("leftkjdzc", ImVec2(0, 0))){
-                for (int i = 0; i < 100; i++) ImGui::Text(" ");
-                ImGui::EndChild();
-            }
-            ImGui::PopStyleColor();
-
-            ImGui::TableNextColumn();
-            ImGui::PushStyleColor(ImGuiCol_ChildBg, IM_COL32(10, 10, 10, 255));
-            if (ImGui::BeginChild("rightkjdzc", ImVec2(0, 0))){
-                for (int i = 0; i < 100; i++) ImGui::Text(" ");
-                ImGui::EndChild();
-            }
-            ImGui::PopStyleColor();
-
-            ImGui::EndTable();
-        }
-        ImGui::EndChild();
-    }
-}
-
-void draw_viewport_window(AppState* appstate){
-    ImGui::BeginChild("##TopPanel", ImVec2(0, 0), ImGuiChildFlags_ResizeY, ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoMouseInputs | ImGuiWindowFlags_NoScrollbar);
-    for (int i = 0; i < 100; i++) ImGui::Text(" ");
-    ImGui::EndChild();
-}
-
-void draw_menu_bar_m(AppState* appstate){
-    ImGui::BeginChild("LeftPanel", ImVec2(0, 1), 0, ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
-
-    ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(10, 0));
-    if (ImGui::BeginMenuBar()){
-        float width = ImGui::GetWindowWidth();
-        ImGui::MenuItem("New"); ImGui::Separator();
-        ImGui::MenuItem("Open"); ImGui::Separator();
-        ImGui::MenuItem("Save"); ImGui::Separator();
-        if (ImGui::BeginMenu("Edit"))
-        {
-            ImGui::MenuItem("Copy");
-            ImGui::MenuItem("Paste");
-            ImGui::EndMenu();
-        }
-        ImGui::Separator();
-        if (ImGui::BeginMenu("Tools"))
-        {
-            ImGui::MenuItem("Recompile Shaders");
-            ImGui::EndMenu();
-        }
-
-        ImGui::EndMenuBar();
-    }
-    ImGui::PopStyleVar();
-    ImGui::EndChild();
-}
-
-void draw_menu_bar_r(AppState* appstate){
-    ImGui::BeginChild("LeftfgPanel", ImVec2(0, 1), 0, ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
-
-    ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(10, 0));
-    if (ImGui::BeginMenuBar()){
-        float width = ImGui::GetWindowWidth();
-        ImGui::MenuItem("New"); ImGui::Separator();
-        ImGui::MenuItem("Open"); ImGui::Separator();
-        ImGui::MenuItem("Save"); ImGui::Separator();
-        if (ImGui::BeginMenu("Edit"))
-        {
-            ImGui::MenuItem("Copy");
-            ImGui::MenuItem("Paste");
-            ImGui::EndMenu();
-        }
-        ImGui::Separator();
-        if (ImGui::BeginMenu("Tools"))
-        {
-            ImGui::MenuItem("Recompile Shaders");
-            ImGui::EndMenu();
-        }
-
-        ImGui::EndMenuBar();
-    }
-    ImGui::PopStyleVar();
-    ImGui::EndChild();
-}
-
-void UI::draw_ui(AppState* appstate){
-
-    ImGui_ImplVulkan_NewFrame();
-    ImGui_ImplSDL3_NewFrame();
-    ImGui::NewFrame();
-    
-    // ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-
-    ImGui::SetNextWindowPos(ImVec2(0, 0));
-
-    ImGui::SetNextWindowSize(ImVec2(appstate->ui_data.window_width, appstate->ui_data.window_hight));
-    ImGui::Begin("##FullscreenOverlay", nullptr,
-        ImGuiWindowFlags_NoDecoration |
-        ImGuiWindowFlags_NoMove |
-        ImGuiWindowFlags_NoScrollWithMouse |
-        ImGuiWindowFlags_NoBackground |
-        ImGuiWindowFlags_NoBringToFrontOnFocus);
-
-    // ImGui::PushStyleColor(ImGuiCol_TableBorderLight, IM_COL32(100, 175, 203, 255));
-    if (ImGui::BeginTable("MainLayout", 3, ImGuiTableFlags_Resizable)){
-        ImGui::TableNextRow();
-
-        ImGui::TableNextColumn(); draw_left_panel(appstate);
-        ImGui::TableNextColumn(); draw_menu_bar_m(appstate); draw_viewport_window(appstate); draw_buttom_panel(appstate);
-        ImGui::TableNextColumn(); draw_menu_bar_r(appstate); draw_plot_panel(appstate); draw_editor_panel(appstate);
-        ImGui::EndTable();
-    }
-    ImGui::End();
-
-    // ImGui::PopStyleVar();
-    ImGui::Render();
-}

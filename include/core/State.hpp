@@ -29,12 +29,15 @@ typedef struct {
     std::vector<VkFence>            image_in_flight;
     size_t current_frame = 0;
 } RenderData;
+
+enum class Setting { None, Test };
 typedef struct{
     float window_width;
     float window_hight;
 
-    ImU32 ui_bg_color;
+    Setting which_setting;
 } UiData;
+
 typedef struct{
     RenderData  render_data;
     bool        signal_to_exit;

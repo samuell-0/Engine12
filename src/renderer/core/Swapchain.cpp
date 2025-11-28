@@ -23,7 +23,7 @@ VkResult create_msaa_color_image(AppState* appstate){
     VkMemoryAllocateInfo alloc_info{};
     alloc_info.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
     alloc_info.allocationSize = mem_req.size;
-    alloc_info.memoryTypeIndex ;//NOTE: I thing I must assignt this....
+    alloc_info.memoryTypeIndex ;//NOTE: I think I must assignt this....
 
     
     appstate->disp.allocateMemory(&alloc_info, nullptr, &appstate->render_data.msaa_memory);
@@ -46,6 +46,7 @@ VkResult create_msaa_color_image(AppState* appstate){
 
     return VK_SUCCESS;
 }
+
 VkResult Swapchain::create_framebuffers(AppState* appstate) {
     create_msaa_color_image(appstate);
     appstate->render_data.swapchain_image_views = appstate->swapchain.get_image_views().value();
@@ -70,6 +71,7 @@ VkResult Swapchain::create_framebuffers(AppState* appstate) {
     }
     return VK_SUCCESS;
 }
+
 // VkSurfaceFormatKHR choose_swapchain_format(AppState* appstate) {
 //     uint32_t count = 0;
 //     vkGetPhysicalDeviceSurfaceFormatsKHR(appstate->device.physical_device.physical_device, appstate->surface, &count, nullptr);
@@ -86,6 +88,7 @@ VkResult Swapchain::create_framebuffers(AppState* appstate) {
 //     Log::push(LogLevel::Warning, "None of the desired formats are supported by the physical device....falling back");
 //     return formats[0];
 // }
+
 VkResult Swapchain::create_swapchain(AppState* appstate){
     VkSurfaceFormatKHR desired_format = {};
     desired_format.format = VK_FORMAT_B8G8R8A8_UNORM;//why did I use bgr instead of rbg?   I did this for imgui if you want to remember...I made sure it is suppotted on my current pc if you wondering(choose_swapchain_format)
@@ -106,6 +109,7 @@ VkResult Swapchain::create_swapchain(AppState* appstate){
 
     return VK_SUCCESS;
 }
+
 VkResult Swapchain::recreate_swapchain(AppState* appstate){
     appstate->disp.deviceWaitIdle();
 
