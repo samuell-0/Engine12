@@ -8,6 +8,8 @@
 #include "core/State.hpp"
 #include "ui/IconsAwesome6.h"
 
+#include "core/Log.hpp"
+
 inline void draw_test_setting_window(AppState* appstate){
     ImGui::PushStyleColor(ImGuiCol_ChildBg, IM_COL32(10, 10, 10, 230));
 
@@ -16,7 +18,8 @@ inline void draw_test_setting_window(AppState* appstate){
     ImGui::SetCursorPosX(ImGui::GetWindowWidth() - 27.0f);
     ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 100);
 
-    ImGui::Button(ICON_FA_DOWNLOAD, ImVec2(25.0f, 25.0f));
+    if (ImGui::Button(ICON_FA_DOWNLOAD, ImVec2(25.0f, 25.0f)))
+        appstate->ui_data.which_setting = SettingOpened::None;
 
     ImGui::PopStyleVar();
     ImGui::EndChild();
@@ -26,7 +29,7 @@ inline void draw_test_setting_window(AppState* appstate){
 
 inline void draw_left_panel(AppState* appstate){
     ImGui::PushStyleColor(ImGuiCol_ChildBg, IM_COL32(10, 10, 10, 255));
-    ImGui::BeginChild("##LeftPanel", ImVec2(0.0f, appstate->ui_data.window_hight));
+    ImGui::BeginChild("##LeftPanel", ImVec2(0.0f, appstate->ui_data.window_hight), 0);
     if (ImGui::BeginTabBar("##TabBar")){
 
         bool api_tab_is_open = ImGui::BeginTabItem("API");
@@ -38,14 +41,19 @@ inline void draw_left_panel(AppState* appstate){
         if (api_tab_is_open){
 
             if (ImGui::Button("test", ImVec2(ImGui::GetWindowWidth(), 0.0f)))
-                if (appstate->ui_data.which_setting != Setting::Test)
-                    appstate->ui_data.which_setting = Setting::Test;
+                if (appstate->ui_data.which_setting != SettingOpened::Test)
+                    appstate->ui_data.which_setting = SettingOpened::Test;
                 else
-                    appstate->ui_data.which_setting = Setting::None;
-
+                    appstate->ui_data.which_setting = SettingOpened::None;
+            if (ImGui::Button("ubnlk")){
+                ImGui::OpenPopup("pop");
+            }
+            if (ImGui::BeginPopup("pop")){
+                ImGui::ShowMetricsWindow();
+                ImGui::EndPopup();
+            }
             ImGui::EndTabItem();
         }
-
         bool simulation_tab_is_open = ImGui::BeginTabItem("Simulation");
         if (ImGui::IsItemHovered()){
             ImGui::BeginTooltip();
@@ -53,6 +61,13 @@ inline void draw_left_panel(AppState* appstate){
             ImGui::EndTooltip();
         }
         if (simulation_tab_is_open){
+            if (ImGui::Button("ubnlk")){
+                ImGui::OpenPopup("pop");
+            }
+            if (ImGui::BeginPopup("pop")){
+                ImGui::ColorPicker4("clear", appstate->clearColor.color.float32);
+                ImGui::EndPopup();
+            }
             ImGui::EndTabItem();
         }
         ImGui::EndTabBar();
@@ -65,15 +80,14 @@ inline void draw_view_window(AppState* appstate){
     ImGui::BeginChild("##ViewWindow", ImVec2(0.0f, 0.0f), ImGuiChildFlags_ResizeY, ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoMouseInputs | ImGuiWindowFlags_NoScrollbar);
     switch (appstate->ui_data.which_setting)
     {
-        case Setting::Test:
+        case SettingOpened::Test:
             draw_test_setting_window(appstate);
     }
     ImGui::EndChild();
 }
 
 inline void draw_buttom_panel(AppState* appstate){
-    
-    if (ImGui::BeginChild("##BottomPanel", ImVec2(0, 0))){
+    ImGui::BeginChild("##BottomPanel", ImVec2(0, 0), 0, ImGuiWindowFlags_NoDecoration);
         if (ImGui::BeginTable("##BottomTable", 2, ImGuiTableFlags_Resizable)){
 
             ImGui::TableNextRow();
@@ -81,29 +95,27 @@ inline void draw_buttom_panel(AppState* appstate){
             ImGui::TableNextColumn();
 
             ImGui::PushStyleColor(ImGuiCol_ChildBg, IM_COL32(16, 28, 33, 255));
-            if (ImGui::BeginChild("##LeftColumn", ImVec2(0, 0))){
+            ImGui::BeginChild("##LeftColumn", ImVec2(0, 0), 0);
                 ImGui::EndChild();
-            }
             ImGui::PopStyleColor();
 
             ImGui::TableNextColumn();
 
             ImGui::PushStyleColor(ImGuiCol_ChildBg, IM_COL32(10, 10, 10, 255));
-            if (ImGui::BeginChild("##RightColumn", ImVec2(0, 0))){
+            ImGui::BeginChild("##RightColumn", ImVec2(0, 0), 0);
                 ImGui::EndChild();
-            }
+    
             ImGui::PopStyleColor();
 
             ImGui::EndTable();
         }
-        ImGui::EndChild();
-    }
+    ImGui::EndChild();
 }
 
 inline void draw_visualization_panel(AppState* appstate){
     ImGui::PushStyleColor(ImGuiCol_ChildBg, IM_COL32(16, 28, 33, 255));
 
-    ImGui::BeginChild("##Visualization", ImVec2(0, 0), ImGuiChildFlags_ResizeY);
+    ImGui::BeginChild("##Visualization", ImVec2(0, 0), ImGuiChildFlags_ResizeY | 0);
     ImGui::EndChild();
 
     ImGui::PopStyleColor();
@@ -112,7 +124,7 @@ inline void draw_visualization_panel(AppState* appstate){
 inline void draw_editor_panel(AppState* appstate){
     ImGui::PushStyleColor(ImGuiCol_ChildBg, IM_COL32(10, 10, 10, 255));
 
-    ImGui::BeginChild("##EditorPanel", ImVec2(0, 0));
+    ImGui::BeginChild("##EditorPanel", ImVec2(0, 0), 0);
     ImGui::EndChild();
 
     ImGui::PopStyleColor();
@@ -127,16 +139,9 @@ inline void draw_main_menu_bar(AppState* appstate){
         ImGui::MenuItem(ICON_FA_FILE " New"); ImGui::Separator();
         ImGui::MenuItem(ICON_FA_FOLDER " Open"); ImGui::Separator();
         ImGui::MenuItem(ICON_FA_SAVE " Save"); ImGui::Separator();
-        if (ImGui::BeginMenu(ICON_FA_EDIT " Edit"))
-        {
-            ImGui::MenuItem(ICON_FA_COPY " Copy");
-            ImGui::MenuItem(ICON_FA_PASTE " Paste");
-            ImGui::EndMenu();
-        }
-        ImGui::Separator();
-        if (ImGui::BeginMenu(ICON_FA_TOOLS " Tools"))
-        {
-            ImGui::MenuItem(ICON_FA_RETRY " Recompile Shaders");
+        if (ImGui::BeginMenu(ICON_FA_SAVE " jnmo")){
+            ImGui::ShowDebugLogWindow();
+            // ImGui::ShowStyleEditor();
             ImGui::EndMenu();
         }
 
@@ -174,7 +179,6 @@ namespace UI{
         ImGui_ImplSDL3_NewFrame();
         ImGui::NewFrame();
         
-        // ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
 
         ImGui::SetNextWindowPos(ImVec2(0, 0));
 
@@ -186,7 +190,6 @@ namespace UI{
             ImGuiWindowFlags_NoBackground |
             ImGuiWindowFlags_NoBringToFrontOnFocus);
 
-        // ImGui::PushStyleColor(ImGuiCol_TableBorderLight, IM_COL32(100, 175, 203, 255));
         if (ImGui::BeginTable("##MainLayout", 3, ImGuiTableFlags_Resizable)){
             ImGui::TableNextRow();
 
@@ -197,8 +200,6 @@ namespace UI{
         }
         ImGui::End();
 
-        // ImGui::PopStyleColor();
-        // ImGui::PopStyleVar();
         ImGui::Render();
     }
 

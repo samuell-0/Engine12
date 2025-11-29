@@ -30,12 +30,12 @@ typedef struct {
     size_t current_frame = 0;
 } RenderData;
 
-enum class Setting { None, Test };
+enum class SettingOpened { None, Test };
 typedef struct{
     float window_width;
     float window_hight;
 
-    Setting which_setting;
+    SettingOpened which_setting;
 } UiData;
 
 typedef struct{
@@ -54,5 +54,6 @@ typedef struct{
 
     VkDescriptorPool imgui_desc_pool;
 
-    UiData  ui_data;    
+    UiData  ui_data;
+    VkClearValue clearColor{{1.0f, 1.0f, 1.0f, 1.0f}};
 } AppState;

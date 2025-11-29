@@ -22,9 +22,10 @@ void set_custom_theming(){
     style.Colors[ImGuiCol_ScrollbarGrab]        = ImVec4(0.40f, 0.63f, 0.87f, 1.00f);
     style.Colors[ImGuiCol_ScrollbarGrabHovered] = ImVec4(0.40f, 0.63f, 0.87f, 1.00f);
     style.Colors[ImGuiCol_ScrollbarGrabActive]  = ImVec4(0.40f, 0.63f, 0.87f, 1.00f);
-    style.Colors[ImGuiCol_Text]                 = vec4(160, 215, 237, 255);
-
+    // style.Colors[ImGuiCol_FrameBg]              = ImVec4(0.40f, 0.63f, 0.87f, 1.00f);
     style.Colors[ImGuiCol_MenuBarBg]            = vec4(10, 10, 10, 255);
+
+    style.Colors[ImGuiCol_Text]                 = vec4(160, 215, 237, 255);
 
     style.Colors[ImGuiCol_TableBorderLight]     = vec4(10, 10, 10, 255);
 
