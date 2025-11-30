@@ -124,9 +124,9 @@ void Renderer::clean_up(AppState* appstate){
 
     appstate->swapchain.destroy_image_views(appstate->render_data.swapchain_image_views);
 
-    appstate->disp.destroyImageView(appstate->render_data.msaa_image_view, nullptr);
-    appstate->disp.destroyImage(appstate->render_data.msaa_image, nullptr);
-    appstate->disp.freeMemory(appstate->render_data.msaa_memory, nullptr);
+    appstate->disp.destroyImageView(appstate->render_data.msaa_image_view, nullptr);// yes needed
+    appstate->disp.destroyImage(appstate->render_data.msaa_image, nullptr);// this cleans only the last image (other are cleaned at recreat stages)
+    appstate->disp.freeMemory(appstate->render_data.msaa_image_memory, nullptr);// this cleans only the last VkDeviceMemory (other are cleaned at recreat stages)
 
     vkb::destroy_swapchain(appstate->swapchain);
     vkb::destroy_device(appstate->device);

@@ -55,10 +55,7 @@ bool UI::create_window(AppState* appstate){
     if (window == nullptr) return false;
 
     appstate->window = window;
-    int x, y;
-    SDL_GetWindowSizeInPixels(window, &x, &y);
-    appstate->ui_data.window_width = x;
-    appstate->ui_data.window_hight = y;
+    SDL_GetWindowSizeInPixels(window, &appstate->ui_data.window_width, &appstate->ui_data.window_hight);
     return true;
 }
 

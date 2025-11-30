@@ -28,5 +28,11 @@
 #define ICON_FA_EDIT            u8"\uf044"
 #define ICON_FA_RETRY           u8"\uf01e"
 #define ICON_FA_TOOLS           u8"\uf7d9"
-
+#define ICON_FA_FULLSCREEN      u8"\uf065"
+#define ICON_FA_COMPRESS        u8"\uf066"
+#define ICON_FA_CLOSE           u8"\uf00d"
+#define ICON_FA_CIRCLE          u8"\uf22d"
+#define ICON_FA_HIDE            u8"\uf068"
+#define ICON_FA_SHOW            u8"\uf06e"
+#define ICON_FA_TSET            u8"\uf492"
 // Add more as you need them – full list: https://fontawesome.com/v6/search?o=r&m=free

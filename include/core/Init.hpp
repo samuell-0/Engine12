@@ -31,6 +31,5 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
     if (CommandPool::allocate_command_buffers(as) != VK_SUCCESS)      return SDL_APP_FAILURE;
     if (Renderer::create_sync_objects(as)         != VK_SUCCESS)      return SDL_APP_FAILURE;
     if (UI::init_imgui(as)                        != VK_SUCCESS)      return SDL_APP_FAILURE;
-    // printf("Actual swapchain format: %d\n", (int)as->swapchain.image_format);
     return SDL_APP_CONTINUE;
 }

@@ -19,18 +19,18 @@ inline void draw_main_menu_bar(AppState* appstate){
         ImGui::MenuItem(ICON_FA_FILE " New"); ImGui::Separator();
         ImGui::MenuItem(ICON_FA_FOLDER " Open"); ImGui::Separator();
         ImGui::MenuItem(ICON_FA_SAVE " Save"); ImGui::Separator();
-        if (ImGui::BeginMenu(ICON_FA_SAVE " jniubkmo")){
-            ImGui::ShowDebugLogWindow();
-            ImGui::EndMenu();
-        }
-        if (ImGui::BeginMenu(ICON_FA_SAVE " jnmo")){
-            ImGui::ColorPicker4("sz", appstate->clearColor.color.float32);
-            ImGui::EndMenu();
-        }
-        if (ImGui::BeginMenu(ICON_FA_SAVE " jnkjunmo")){
-            ImGui::ShowMetricsWindow();
-            ImGui::EndMenu();
-        }
+        // if (ImGui::BeginMenu(ICON_FA_SAVE " jniubkmo")){
+        //     ImGui::ShowDebugLogWindow();
+        //     ImGui::EndMenu();
+        // }
+        // if (ImGui::BeginMenu(ICON_FA_SAVE " jnmo")){
+        //     ImGui::ColorPicker4("sz", appstate->clearColor.color.float32);
+        //     ImGui::EndMenu();
+        // }
+        // if (ImGui::BeginMenu(ICON_FA_SAVE " jnkjunmo")){
+        //     ImGui::ShowMetricsWindow();
+        //     ImGui::EndMenu();
+        // }
         ImGui::EndMenuBar();
     }
     ImGui::PopStyleVar();
@@ -53,7 +53,7 @@ inline void draw_secondary_menu_bar(AppState* appstate){
     ImGui::EndChild();
 }
 
-inline void draw_window_ctrl_bar(AppState* appstate){
+inline void draw_window_CTRL_bar(AppState* appstate){
     float width   = ImGui::GetWindowWidth();
     if (width <= 100) return;
     ImVec2 start  = ImGui::GetWindowPos();
@@ -72,12 +72,12 @@ inline void draw_window_ctrl_bar(AppState* appstate){
         // NOTE: static assuming there is no other way in the app to change it
         static bool fullscreen = (SDL_GetWindowFlags(appstate->window) & SDL_WINDOW_FULLSCREEN) != 0;
 
-        if (ImGui::Button(ICON_FA_FOLDER "##iu", ImVec2(25.0f, 25.0f)))
+        if (ImGui::Button(ICON_FA_CIRCLE "##iu", ImVec2(25.0f, 25.0f)))
             0;
 
         ImGui::SameLine(0.0f, spacing);
         if (fullscreen){
-            if (ImGui::Button(ICON_FA_FOLDER "##h", ImVec2(25.0f, 25.0f))){
+            if (ImGui::Button(ICON_FA_COMPRESS "##compress", ImVec2(25.0f, 25.0f))){
                 if (!SDL_SetWindowFullscreen(appstate->window, false)){
                     Log::push(LogLevel::Warning, "could not turn off fullscreen: " + std::string(SDL_GetError()));
                 }
@@ -85,7 +85,7 @@ inline void draw_window_ctrl_bar(AppState* appstate){
             }
         }
         else{
-            if (ImGui::Button(ICON_FA_FOLDER "##hkh", ImVec2(25.0f, 25.0f))){
+            if (ImGui::Button(ICON_FA_FULLSCREEN "##fullscreen", ImVec2(25.0f, 25.0f))){
                 if (!SDL_SetWindowFullscreen(appstate->window, true)){
                     Log::push(LogLevel::Warning, "could not turn on fullscreen: " + std::string(SDL_GetError()));
                 }
@@ -94,7 +94,7 @@ inline void draw_window_ctrl_bar(AppState* appstate){
         }
 
         ImGui::SameLine(0.0f, spacing);
-        if (ImGui::Button(ICON_FA_FOLDER "##kmjk", ImVec2(25.0f, 25.0f))){
+        if (ImGui::Button(ICON_FA_CLOSE "##close", ImVec2(25.0f, 25.0f))){
             SDL_Event quit_event;
             quit_event.type = SDL_EVENT_QUIT;
             SDL_PushEvent(&quit_event);
@@ -106,19 +106,42 @@ inline void draw_window_ctrl_bar(AppState* appstate){
 }
 
 inline void draw_test_setting_window(AppState* appstate){
-    ImGui::PushStyleColor(ImGuiCol_ChildBg, IM_COL32(10, 10, 10, 230));
-
-    ImGui::BeginChild("##TestWindow", ImVec2(0.0f, 0.0f), 0, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoCollapse);
-
-    ImGui::SetCursorPosX(ImGui::GetWindowWidth() - 27.0f);
     ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 100);
 
-    if (ImGui::Button(ICON_FA_DOWNLOAD, ImVec2(25.0f, 25.0f)))
-        appstate->ui_data.which_setting = SettingOpened::None;
+    static bool maximized{true};
 
-    ImGui::PopStyleVar();
-    ImGui::EndChild();
+    if (maximized){
+        ImGui::PushStyleColor(ImGuiCol_ChildBg, IM_COL32(10, 10, 10, 230));
+        ImGui::BeginChild("##TestWindow", ImVec2(0.0f, 0.0f), 0, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoCollapse);
 
+        ImGui::SetCursorPosX(ImGui::GetWindowWidth() - 62.0f);
+
+        if (ImGui::Button(ICON_FA_HIDE, ImVec2(25.0f, 25.0f))){
+            maximized = false;
+        }
+        ImGui::SameLine(0.0f, 10.0f);
+        if (ImGui::Button(ICON_FA_CLOSE, ImVec2(25.0f, 25.0f)))
+            appstate->ui_data.which_setting = SettingOpened::None;
+
+        ImGui::EndChild();
+        ImGui::PopStyleVar();
+    }
+    else    {
+        ImGui::SetCursorPosX(ImGui::GetWindowWidth() - 62.0f);
+        ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 20.0f);
+        ImGui::PushStyleColor(ImGuiCol_ChildBg, IM_COL32(30, 30, 30, 230));
+
+        ImGui::BeginChild("##TestWindowCTRL", ImVec2(0.0f, 25.0f), 0, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoCollapse);
+        if (ImGui::Button(ICON_FA_SHOW, ImVec2(25.0f, 25.0f))){
+            maximized = true;
+        }
+        ImGui::SameLine(0.0f, 10.0f);
+        if (ImGui::Button(ICON_FA_CLOSE, ImVec2(25.0f, 25.0f)))
+            appstate->ui_data.which_setting = SettingOpened::None;
+
+        ImGui::EndChild();
+        ImGui::PopStyleVar(2);
+    }
     ImGui::PopStyleColor();
 }
 
@@ -135,21 +158,14 @@ inline void draw_left_panel(AppState* appstate){
         }
         if (api_tab_is_open){
 
-            if (ImGui::Button("test", ImVec2(ImGui::GetWindowWidth(), 0.0f)))
+            if (ImGui::Button(ICON_FA_TSET, ImVec2(ImGui::GetWindowWidth(), 0.0f)))
                 if (appstate->ui_data.which_setting != SettingOpened::Test)
                     appstate->ui_data.which_setting = SettingOpened::Test;
                 else
                     appstate->ui_data.which_setting = SettingOpened::None;
-            {
-                if (ImGui::Button("ubnlk")){
-                    ImGui::OpenPopup("pop");
-                }
-                if (ImGui::BeginPopup("pop")){
-                    ImGui::ShowMetricsWindow();
-                    ImGui::EndPopup();
-                }                
-            }
             
+            ImGui::ShowMetricsWindow();
+
             ImGui::EndTabItem();
         }
         bool simulation_tab_is_open = ImGui::BeginTabItem("Simulation");
@@ -192,7 +208,7 @@ inline void draw_view_window(AppState* appstate){
         case SettingOpened::Test:
             draw_test_setting_window(appstate);
         default:
-            draw_window_ctrl_bar(appstate);
+            draw_window_CTRL_bar(appstate);
     }
     ImGui::EndChild();
 }
@@ -226,7 +242,7 @@ inline void draw_buttom_panel(AppState* appstate){
 inline void draw_visualization_panel(AppState* appstate){
     ImGui::PushStyleColor(ImGuiCol_ChildBg, IM_COL32(16, 28, 33, 255));
 
-    ImGui::BeginChild("##Visualization", ImVec2(0.0f, 0.0f), ImGuiChildFlags_ResizeY | 0);
+    ImGui::BeginChild("##Visualization", ImVec2(0.0f, 0.0f), ImGuiChildFlags_ResizeY);
     ImGui::EndChild();
 
     ImGui::PopStyleColor();

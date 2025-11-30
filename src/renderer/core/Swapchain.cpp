@@ -2,6 +2,10 @@
 #include "renderer/core/CommandPool.h"
 #include "core/Log.hpp"
 VkResult create_msaa_color_image(AppState* appstate){
+    appstate->disp.destroyImage(appstate->render_data.msaa_image, nullptr);         //if not there will  be multiple image childs for the device and we only cleanup the last one
+    appstate->disp.destroyImageView(appstate->render_data.msaa_image_view, nullptr);// same goes
+    appstate->disp.freeMemory(appstate->render_data.msaa_image_memory, nullptr);    //if not there will  be multiple VkDeviceMemory childs for the device and we only cleanup the last one
+
     VkImageCreateInfo image_info{};
     image_info.sType    = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
     image_info.format   = appstate->swapchain.image_format;
@@ -26,9 +30,9 @@ VkResult create_msaa_color_image(AppState* appstate){
     alloc_info.memoryTypeIndex ;//NOTE: I think I must assignt this....
 
     
-    appstate->disp.allocateMemory(&alloc_info, nullptr, &appstate->render_data.msaa_memory);
+    appstate->disp.allocateMemory(&alloc_info, nullptr, &appstate->render_data.msaa_image_memory);
     
-    appstate->disp.bindImageMemory(appstate->render_data.msaa_image, appstate->render_data.msaa_memory, 0);
+    appstate->disp.bindImageMemory(appstate->render_data.msaa_image, appstate->render_data.msaa_image_memory, 0);
 
 
     VkImageViewCreateInfo view_info{};
@@ -120,6 +124,7 @@ VkResult Swapchain::recreate_swapchain(AppState* appstate){
     }
 
     appstate->swapchain.destroy_image_views(appstate->render_data.swapchain_image_views);
+    // appstate->disp.destroyImageView(appstate->render_data.msaa_image_view, nullptr);// DO NOT UNCOMMENT: Done at create_msaa_color_image!
 
     if (create_swapchain(appstate)                     != VK_SUCCESS)  return Log::push(LogLevel::Error, "unbl to crt swp chain(re)",  VK_ERROR_INITIALIZATION_FAILED);;
     if (create_framebuffers(appstate)                  != VK_SUCCESS)  return Log::push(LogLevel::Error, "unbl to crt frame bffr(re)", VK_ERROR_INITIALIZATION_FAILED);;

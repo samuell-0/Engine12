@@ -13,7 +13,7 @@ typedef struct {
     std::vector<VkImageView>        swapchain_image_views;
     VkImage                         msaa_image;//for attachment #0 ie, color_attachment for msaa...only one needed
     VkImageView                     msaa_image_view;
-    VkDeviceMemory                  msaa_memory;
+    VkDeviceMemory                  msaa_image_memory;
     std::vector<VkFramebuffer>      framebuffers;
 
     VkRenderPass                    render_pass;
