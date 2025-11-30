@@ -32,8 +32,8 @@ typedef struct {
 
 enum class SettingOpened { None, Test };
 typedef struct{
-    float window_width;
-    float window_hight;
+    int window_width;
+    int window_hight;
 
     SettingOpened which_setting;
 } UiData;

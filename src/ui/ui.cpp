@@ -9,6 +9,8 @@ void set_custom_theming(){
     
     style.ButtonTextAlign = ImVec2(0.0f, 0.5f);
     style.CellPadding     = ImVec2(0.0f, 0.0f);
+    style.WindowPadding   = ImVec2(0.0f, 0.0f);
+    style.WindowBorderSize= 0.0f;
     style.ItemSpacing     = ImVec2(0.0f, 0.0f);
 
     style.TabRounding     = 1.0f;
@@ -49,8 +51,8 @@ bool UI::create_window(AppState* appstate){
 
     if (!SDL_Vulkan_LoadLibrary(nullptr)) return -1;
     
-    SDL_Window* window = SDL_CreateWindow("vulkan", 1000, 600, SDL_WINDOW_VULKAN);
-    if (window == nullptr) return -1;
+    SDL_Window* window = SDL_CreateWindow("vulkan", 1000, 600, SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE);
+    if (window == nullptr) return false;
 
     appstate->window = window;
     int x, y;
