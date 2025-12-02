@@ -13,28 +13,33 @@ void set_custom_theming(){
     style.WindowBorderSize= 0.0f;
     style.ItemSpacing     = ImVec2(0.0f, 0.0f);
 
-    style.TabRounding     = 1.0f;
-    style.TabMinWidthBase = 70.0f;
     // style.AntiAliasedFill = true;// NOTE: GPU
     // style.ChildRounding   = 10.0f;
+
     style.ScrollbarRounding = 2.0f;
     style.ScrollbarSize     = 6.0f;
-
     style.Colors[ImGuiCol_ScrollbarBg]          = ImVec4(0.0f, 0.0f, 0.0f, 0.00f);
     style.Colors[ImGuiCol_ScrollbarGrab]        = ImVec4(0.40f, 0.63f, 0.87f, 1.00f);
     style.Colors[ImGuiCol_ScrollbarGrabHovered] = ImVec4(0.40f, 0.63f, 0.87f, 1.00f);
     style.Colors[ImGuiCol_ScrollbarGrabActive]  = ImVec4(0.40f, 0.63f, 0.87f, 1.00f);
+
     // style.Colors[ImGuiCol_FrameBg]              = ImVec4(0.40f, 0.63f, 0.87f, 1.00f);
     style.Colors[ImGuiCol_MenuBarBg]            = vec4(10, 10, 10, 255);
 
     style.Colors[ImGuiCol_Text]                 = vec4(160, 215, 237, 255);
 
-    style.Colors[ImGuiCol_TableBorderLight]     = vec4(10, 10, 10, 255);
+    style.Colors[ImGuiCol_TableBorderLight]     = style.Colors[ImGuiCol_Separator];
+    style.Colors[ImGuiCol_BorderShadow]         = ImVec4(0.0f, 0.0f, 0.0f, 0.00f);
+    style.Colors[ImGuiCol_Border]               = ImVec4(0.0f, 0.0f, 0.0f, 0.00f);
+    style.Colors[ImGuiCol_SeparatorHovered]     = ImVec4(0.0f, 0.0f, 0.0f, 0.00f);
+    // style.Colors[ImGuiCol_TableRowBg]           = vec4(10, 10, 10, 255);
 
     style.Colors[ImGuiCol_ResizeGrip]           = ImVec4(0.0f, 0.0f, 0.0f, 0.00f);
     style.Colors[ImGuiCol_ResizeGripHovered]    = ImVec4(0.0f, 0.0f, 0.0f, 0.00f);
     style.Colors[ImGuiCol_ResizeGripActive]     = ImVec4(0.0f, 0.0f, 0.0f, 1.00f);
 
+    style.TabRounding     = 1.0f;
+    // style.TabMinWidthBase = 70.0f;
     style.Colors[ImGuiCol_Tab]                  = vec4(0, 0, 0, 0);
     style.Colors[ImGuiCol_TabSelected]          = vec4(100, 100, 150, 100);
     style.Colors[ImGuiCol_TabSelectedOverline]  = vec4(0, 0, 0, 0);
