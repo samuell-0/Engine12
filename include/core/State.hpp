@@ -27,13 +27,14 @@ typedef struct {
     std::vector<VkSemaphore>        finished_semaphore;
     std::vector<VkFence>            in_flight_fences;
     std::vector<VkFence>            image_in_flight;
-    size_t current_frame = 0;
+    size_t current_frame;
 } RenderData;
 
 enum class SettingOpened { None, Test };
 typedef struct{
     int window_width;
     int window_hight;
+    // float view_weight{0.8f};
 
     SettingOpened which_setting;
 } UiData;

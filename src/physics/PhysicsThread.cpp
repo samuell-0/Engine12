@@ -1,9 +1,11 @@
 #include "physics/PhysicsThread.h"
 #include "core/State.hpp"
 #include <iostream>
-void DoPhysics(void* const appstate){
+void DoPhysics(void* const appstate)
+{
     AppState* as = (AppState*)appstate;
-    while(!as->signal_to_exit){
-        // std::cout << "doing physics!" << std::endl;
+    while(!as->signal_to_exit)
+    {
+        std::printf("doing physics!");
     }
 }

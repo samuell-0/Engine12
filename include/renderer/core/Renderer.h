@@ -10,7 +10,8 @@
 namespace Renderer{
     VkResult create_render_pass(AppState* appstate);
     VkResult create_sync_objects(AppState* appstate);
-    inline VkResult draw_frame(AppState* appstate){
+    inline VkResult draw_frame(AppState* appstate)
+    {
         appstate->disp.waitForFences(1, &appstate->render_data.in_flight_fences[appstate->render_data.current_frame], VK_TRUE, UINT64_MAX);
 
         uint32_t image_index = 0;

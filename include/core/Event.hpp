@@ -4,7 +4,8 @@
 #include <thread>
 
 
-SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event){
+SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
+{
     // ImGui_ImplSDL3_ProcessEvent see it!
     // SDL_RegisterEvents()
     // event->user.

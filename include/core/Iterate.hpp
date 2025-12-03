@@ -3,7 +3,8 @@
 #include "renderer/core/Renderer.h"
 
 // scene update(the physics theade will handle the computations)
-SDL_AppResult SDL_AppIterate(void *appstate){
+SDL_AppResult SDL_AppIterate(void *appstate)
+{
 
     UI::draw_ui((AppState*)appstate);
     if (Renderer::draw_frame((AppState*)appstate) != VK_SUCCESS)

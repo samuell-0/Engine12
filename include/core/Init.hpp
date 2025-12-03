@@ -12,7 +12,8 @@
 #include "renderer/utils/ShaderModule.h"
 
 #include "core/Log.hpp"
-SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]){
+SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
+{
 
     AppState* as = (AppState*)SDL_calloc(1, sizeof(AppState));
     

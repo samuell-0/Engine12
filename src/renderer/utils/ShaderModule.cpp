@@ -36,6 +36,7 @@ VkShaderModule ShaderModule::create_shader_module(AppState* appstate, const char
     SDL_free(code);
     return shader_module;
 }
-bool ShaderModule::compile_shader(){
+bool ShaderModule::compile_shader()
+{
     return true;
 }

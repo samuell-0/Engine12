@@ -1,7 +1,8 @@
 #include "renderer/pipelines/Pipeline.h"
 #include "renderer/utils/ShaderModule.h"
 #include "core/Log.hpp"
-VkResult Pipeline::create_graphics_pipeline(AppState* appstate){
+VkResult Pipeline::create_graphics_pipeline(AppState* appstate)
+{
 
     VkShaderModule vert_module = ShaderModule::create_shader_module(appstate, "/home/Sam/Projects/Engine12/shaders/compiled/vert.spv");
     VkShaderModule frag_module = ShaderModule::create_shader_module(appstate, "/home/Sam/Projects/Engine12/shaders/compiled/frag.spv");

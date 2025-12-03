@@ -1,7 +1,8 @@
 #include "renderer/core/Swapchain.h"
 #include "renderer/core/CommandPool.h"
 #include "core/Log.hpp"
-VkResult create_msaa_color_image(AppState* appstate){
+VkResult create_msaa_color_image(AppState* appstate)
+{
     appstate->disp.destroyImage(appstate->render_data.msaa_image, nullptr);         //if not there will  be multiple image childs for the device and we only cleanup the last one
     appstate->disp.destroyImageView(appstate->render_data.msaa_image_view, nullptr);// same goes
     appstate->disp.freeMemory(appstate->render_data.msaa_image_memory, nullptr);    //if not there will  be multiple VkDeviceMemory childs for the device and we only cleanup the last one
@@ -79,7 +80,8 @@ VkResult Swapchain::create_framebuffers(AppState* appstate) {
 // VkSurfaceFormatKHR choose_swapchain_format(AppState* appstate) {
 //     uint32_t count = 0;
 //     vkGetPhysicalDeviceSurfaceFormatsKHR(appstate->device.physical_device.physical_device, appstate->surface, &count, nullptr);
-//     if (count == 0){
+//     if (count == 0)
+    // {
 //         Log::push(LogLevel::Warning, "Failed to get avalible formats....falling back");
 //         return {VK_FORMAT_B8G8R8A8_UNORM, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR};
 //     }
@@ -93,7 +95,8 @@ VkResult Swapchain::create_framebuffers(AppState* appstate) {
 //     return formats[0];
 // }
 
-VkResult Swapchain::create_swapchain(AppState* appstate){
+VkResult Swapchain::create_swapchain(AppState* appstate)
+{
     VkSurfaceFormatKHR desired_format = {};
     desired_format.format = VK_FORMAT_B8G8R8A8_UNORM;//why did I use bgr instead of rbg?   I did this for imgui if you want to remember...I made sure it is suppotted on my current pc if you wondering(choose_swapchain_format)
     desired_format.colorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR; // Correct color space
@@ -114,7 +117,8 @@ VkResult Swapchain::create_swapchain(AppState* appstate){
     return VK_SUCCESS;
 }
 
-VkResult Swapchain::recreate_swapchain(AppState* appstate){
+VkResult Swapchain::recreate_swapchain(AppState* appstate)
+{
     appstate->disp.deviceWaitIdle();
 
     appstate->disp.destroyCommandPool(appstate->render_data.command_pool, nullptr);

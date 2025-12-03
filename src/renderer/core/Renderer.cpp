@@ -2,7 +2,8 @@
 #include "core/Log.hpp"
 #include "backends/imgui_impl_vulkan.h"
 #include "backends/imgui_impl_sdl3.h"
-VkResult Renderer::create_render_pass(AppState* appstate){
+VkResult Renderer::create_render_pass(AppState* appstate)
+{
     VkAttachmentDescription color_attachment{};
     color_attachment.format         = appstate->swapchain.image_format;
     color_attachment.samples        = VK_SAMPLE_COUNT_4_BIT;
@@ -59,9 +60,11 @@ VkResult Renderer::create_render_pass(AppState* appstate){
         return Log::push(LogLevel::Error, "unbl to crt renderpass", res);
     return VK_SUCCESS;
 }
-// inline bool Renderer::draw_frame(AppState* AppState){}
+// inline bool Renderer::draw_frame(AppState* AppState)
+// {}
 
-VkResult Renderer::create_sync_objects(AppState* appstate){
+VkResult Renderer::create_sync_objects(AppState* appstate)
+{
     appstate->render_data.available_semaphores.resize(MAX_FRAMES_IN_FLIGHT);
     appstate->render_data.finished_semaphore.resize(appstate->swapchain.image_count);
     appstate->render_data.in_flight_fences.resize(MAX_FRAMES_IN_FLIGHT);
@@ -74,7 +77,8 @@ VkResult Renderer::create_sync_objects(AppState* appstate){
     fence_info.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
     fence_info.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
-    for (size_t i = 0; i < appstate->swapchain.image_count; i++){
+    for (size_t i = 0; i < appstate->swapchain.image_count; i++)
+    {
         VkResult res = appstate->disp.createSemaphore(&semaphore_info, nullptr, &appstate->render_data.finished_semaphore[i]);
         if (res != VK_SUCCESS)
             return Log::push(LogLevel::Error, "unbl to crt semaphore (in a for loop)", res);
@@ -88,7 +92,8 @@ VkResult Renderer::create_sync_objects(AppState* appstate){
     return VK_SUCCESS;
 }
 
-void Renderer::clean_up(AppState* appstate){
+void Renderer::clean_up(AppState* appstate)
+{
 
     // Free command buffers allocated from our command pool before destroying it
     if (!appstate->render_data.command_buffers.empty())

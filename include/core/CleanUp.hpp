@@ -3,7 +3,8 @@
 #include "ui/ui.h"
 #include "renderer/core/Renderer.h"
 
-void SDL_AppQuit(void *appstate, SDL_AppResult result){
+void SDL_AppQuit(void *appstate, SDL_AppResult result)
+{
     AppState* as = (AppState*)appstate;
 
     as->signal_to_exit = true;

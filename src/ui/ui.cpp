@@ -1,10 +1,12 @@
 #include "ui/ui.h"
 #include "renderer/core/CommandPool.h"
 #include "core/Log.hpp"
-ImVec4 vec4(float red, float green, float blue, float alpha){
+ImVec4 vec4(float red, float green, float blue, float alpha)
+{
     return ImVec4(red / 255, green / 255, blue / 255, alpha / 255);
 }
-void set_custom_theming(){
+void set_custom_theming()
+{
     ImGuiStyle& style = ImGui::GetStyle();
     
     style.ButtonTextAlign = ImVec2(0.0f, 0.5f);
@@ -49,12 +51,17 @@ void set_custom_theming(){
     style.Colors[ImGuiCol_ButtonActive]         = vec4(100, 100, 150, 76);
     style.Colors[ImGuiCol_ButtonHovered]        = vec4(100, 100, 150, 130);
 
+    style.AntiAliasedLines = true;
+    style.WindowTitleAlign = ImVec2(0.5f, 0.5f);
+    style.WindowMinSize    = ImVec2(1, 1);
+
 }
 
-bool UI::create_window(AppState* appstate){
-    if (!SDL_Init(SDL_INIT_VIDEO)) return -1;
+bool UI::create_window(AppState* appstate)
+{
+    if (!SDL_Init(SDL_INIT_VIDEO)) return false;
 
-    if (!SDL_Vulkan_LoadLibrary(nullptr)) return -1;
+    if (!SDL_Vulkan_LoadLibrary(nullptr)) return false;
     
     SDL_Window* window = SDL_CreateWindow("vulkan", 1000, 600, SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE);
     if (window == nullptr) return false;
@@ -64,13 +71,15 @@ bool UI::create_window(AppState* appstate){
     return true;
 }
 
-void UI::clean_up(AppState* appstate){
+void UI::clean_up(AppState* appstate)
+{
     SDL_DestroyWindow(appstate->window);
     SDL_free(appstate);
     SDL_Vulkan_UnloadLibrary();
 }
 
-static VkResult create_imgui_descriptor_pool(AppState* appstate){
+static VkResult create_imgui_descriptor_pool(AppState* appstate)
+{
     VkDescriptorPoolSize pool_sizes[] = {
         { VK_DESCRIPTOR_TYPE_SAMPLER,                1000 },
         { VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1000 },
@@ -98,10 +107,12 @@ static VkResult create_imgui_descriptor_pool(AppState* appstate){
     return VK_SUCCESS;
 }
 
-VkResult UI::init_imgui(AppState* appstate){
+VkResult UI::init_imgui(AppState* appstate)
+{
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
+    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
     // io.ConfigFlags |= ImGuiConfigFlags_IsSRGB;
     ImFontConfig config;
     config.OversampleH = 3;
@@ -153,7 +164,8 @@ VkResult UI::init_imgui(AppState* appstate){
     return VK_SUCCESS;
 }
 
-void UI::shutdown_imgui(AppState* appstate){
+void UI::shutdown_imgui(AppState* appstate)
+{
     ImGui_ImplVulkan_Shutdown();
     ImGui_ImplSDL3_Shutdown();
     ImGui::DestroyContext();

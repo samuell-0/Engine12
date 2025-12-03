@@ -1,6 +1,7 @@
 #include "renderer/core/Device.h"
 #include "core/Log.hpp"
-VkResult Device::device_initialization(AppState* appstate){
+VkResult Device::device_initialization(AppState* appstate)
+{
     vkb::InstanceBuilder instance_builder;
 
     vkb::Result<vkb::Instance> result_result = instance_builder.use_default_debug_messenger().request_validation_layers().build();
@@ -22,7 +23,8 @@ VkResult Device::device_initialization(AppState* appstate){
 
     return VK_SUCCESS;
 }
-VkResult Device::get_queues(AppState* appstate){// should not be here
+VkResult Device::get_queues(AppState* appstate)// should not be here
+{
     vkb::Result<VkQueue> graphics_queue_result = appstate->device.get_queue(vkb::QueueType::graphics);
     appstate->render_data.graphics_queue = graphics_queue_result.value();
 
