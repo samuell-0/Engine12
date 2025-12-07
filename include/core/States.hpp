@@ -5,7 +5,8 @@
 #include <imgui.h>
 #include <thread>
 
-typedef struct {
+struct RenderData
+{
     VkQueue                         graphics_queue;
     VkQueue                         present_queue;
 
@@ -28,18 +29,21 @@ typedef struct {
     std::vector<VkFence>            in_flight_fences;
     std::vector<VkFence>            image_in_flight;
     size_t current_frame;
-} RenderData;
+};
 
 enum class SettingOpened { None, Test };
-typedef struct{
-    int window_width;
-    int window_hight;
-    // float view_weight{0.8f};
+struct UiData
+{
+    uint16_t min_middle_width;
+    uint16_t window_width, window_height;
+    uint16_t separator_V0, separator_V1;
+    uint16_t separator_H0, separator_H1;
 
     SettingOpened which_setting;
-} UiData;
+};
 
-typedef struct{
+struct AppState
+{
     RenderData  render_data;
     bool        signal_to_exit;
     std::thread event_thread;
@@ -53,8 +57,8 @@ typedef struct{
     vkb::DispatchTable          disp;
     vkb::Swapchain              swapchain;
 
-    VkDescriptorPool imgui_desc_pool;
+    VkDescriptorPool ImGui_desc_pool;
 
     UiData  ui_data;
     VkClearValue clearColor{{1.0f, 1.0f, 1.0f, 1.0f}};
-} AppState;
+};

@@ -1,8 +1,9 @@
 #include "renderer/core/CommandPool.h"
 #include <iostream>
-#include "core/Log.hpp"
+#include "debuging/Log.hpp"
 #include <imgui.h>
-#include "backends/imgui_impl_vulkan.h"
+#include <backends/imgui_impl_vulkan.h>
+#include <ui/UI.h>
 
 VkResult CommandPool::create_command_pool(AppState *appstate)
 {
@@ -37,7 +38,7 @@ VkResult CommandPool::allocate_command_buffers(AppState *appstate)
     if (res != VK_SUCCESS)
         return Log::push(LogLevel::Error, "unbl to alloc cmd bffr", res);
     // Note: we allocate command buffers here. Recording will be done per-frame
-    // via CommandPool::record_command_buffer so dynamic data like ImGui draw
+    // via CommandPool::record_command_buffer so dynamic data like imgui draw
     // lists are recorded fresh every frame.
 
     return VK_SUCCESS;
@@ -83,16 +84,7 @@ VkResult CommandPool::record_command_buffer(AppState* appstate, uint32_t i)
     // draw application geometry (triangle)
     appstate->disp.cmdDraw(appstate->render_data.command_buffers[i], 3, 1, 0, 0);
 
-    // Render Dear ImGui draw data into the same command buffer (inside the render pass)
-    ImDrawData *imgui_draw_data = ImGui::GetDrawData();
-    if (imgui_draw_data == nullptr)
-        return Log::push(LogLevel::Warning, "imgui draw data null ptr");
-    // Let the ImGui backend use its own pipeline (created during Init)
-    // Passing the app's graphics pipeline here causes ImGui to render with
-    // the wrong pipeline state (depth, blending, vertex layout) and can
-    // occlude or break the triangle rendering.
-    // 
-    ImGui_ImplVulkan_RenderDrawData(imgui_draw_data, appstate->render_data.command_buffers[i]);
+    UI::cmd_draw(appstate, i);
 
     appstate->disp.cmdEndRenderPass(appstate->render_data.command_buffers[i]);
 

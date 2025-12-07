@@ -1,7 +1,8 @@
 #pragma once
-#include "core/State.hpp"
+#include "core/States.hpp"
 
-namespace CommandPool{
+namespace CommandPool
+{
     VkResult create_command_pool(AppState* appstate);
     VkResult allocate_command_buffers(AppState* appstate);
     VkResult record_command_buffer(AppState* appstate, uint32_t image_index);

@@ -1,6 +1,6 @@
-#include "ui/ui.h"
+#include "ui/UI.h"
 #include "renderer/core/CommandPool.h"
-#include "core/Log.hpp"
+#include "debuging/Log.hpp"
 ImVec4 vec4(float red, float green, float blue, float alpha)
 {
     return ImVec4(red / 255, green / 255, blue / 255, alpha / 255);
@@ -54,7 +54,6 @@ void set_custom_theming()
     style.AntiAliasedLines = true;
     style.WindowTitleAlign = ImVec2(0.5f, 0.5f);
     style.WindowMinSize    = ImVec2(1, 1);
-
 }
 
 bool UI::create_window(AppState* appstate)
@@ -67,18 +66,16 @@ bool UI::create_window(AppState* appstate)
     if (window == nullptr) return false;
 
     appstate->window = window;
-    SDL_GetWindowSizeInPixels(window, &appstate->ui_data.window_width, &appstate->ui_data.window_hight);
     return true;
 }
 
 void UI::clean_up(AppState* appstate)
 {
     SDL_DestroyWindow(appstate->window);
-    SDL_free(appstate);
     SDL_Vulkan_UnloadLibrary();
 }
 
-static VkResult create_imgui_descriptor_pool(AppState* appstate)
+static VkResult create_ImGui_descriptor_pool(AppState* appstate)
 {
     VkDescriptorPoolSize pool_sizes[] = {
         { VK_DESCRIPTOR_TYPE_SAMPLER,                1000 },
@@ -101,7 +98,7 @@ static VkResult create_imgui_descriptor_pool(AppState* appstate)
     pool_info.poolSizeCount = (uint32_t)IM_ARRAYSIZE(pool_sizes);
     pool_info.pPoolSizes    = pool_sizes;
 
-    VkResult res = appstate->disp.createDescriptorPool(&pool_info, nullptr, &appstate->imgui_desc_pool);
+    VkResult res = appstate->disp.createDescriptorPool(&pool_info, nullptr, &appstate->ImGui_desc_pool);
     if (res != VK_SUCCESS)
         return Log::push(LogLevel::Warning, "unbl to ctr descriptor pool", res);
     return VK_SUCCESS;
@@ -112,8 +109,8 @@ VkResult UI::init_imgui(AppState* appstate)
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
-    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-    // io.ConfigFlags |= ImGuiConfigFlags_IsSRGB;
+    // io.ConfigFlags |= imguiConfigFlags_DockingEnable;
+    // io.ConfigFlags |= imguiConfigFlags_IsSRGB;
     ImFontConfig config;
     config.OversampleH = 3;
     config.OversampleV = 3;
@@ -133,7 +130,7 @@ VkResult UI::init_imgui(AppState* appstate)
     if (!ImGui_ImplSDL3_InitForVulkan(appstate->window))
         return Log::push(LogLevel::Error, "at ImGui_ImplSDL3_InitForVulkan", VK_ERROR_UNKNOWN);
 
-    if (create_imgui_descriptor_pool(appstate) != VK_SUCCESS)
+    if (create_ImGui_descriptor_pool(appstate) != VK_SUCCESS)
         return Log::push(LogLevel::Error, "unbl to ctr imgui descriptor pool(init_imgui)", VK_ERROR_UNKNOWN);
 
     ImGui_ImplVulkan_InitInfo init_info = {};
@@ -144,10 +141,10 @@ VkResult UI::init_imgui(AppState* appstate)
     init_info.QueueFamily     = appstate->device.get_queue_index(vkb::QueueType::graphics).value();
     init_info.Queue           = appstate->render_data.graphics_queue;
     init_info.PipelineCache   = VK_NULL_HANDLE;
-    init_info.DescriptorPool  = appstate->imgui_desc_pool;
-    // Provide the renderpass and subpass info so ImGui can create its own
+    init_info.DescriptorPool  = appstate->ImGui_desc_pool;
+    // Provide the renderpass and subpass info so imgui can create its own
     // pipeline with the correct blending/depth state. If omitted and we
-    // accidentally render ImGui with the app pipeline, depth/write state
+    // accidentally render imgui with the app pipeline, depth/write state
     // mismatches can hide the triangle.
     init_info.PipelineInfoMain.RenderPass = appstate->render_data.render_pass;
     init_info.PipelineInfoMain.Subpass    = 0;
@@ -160,8 +157,26 @@ VkResult UI::init_imgui(AppState* appstate)
     
     if (!ImGui_ImplVulkan_Init(&init_info))
         return Log::push(LogLevel::Error, "unbl to init vulkan at ImGui_ImplVulkan_Init", VK_ERROR_UNKNOWN);
-    
+    appstate->ui_data.separator_V1 = 300;
+    appstate->ui_data.separator_V0 = 150;
+    appstate->ui_data.min_middle_width = 60;
     return VK_SUCCESS;
+}
+
+void UI::cmd_draw(AppState* appstate, uint32_t index){
+    // Render Dear imgui draw data into the same command buffer (inside the render pass)
+    ImDrawData *ImGui_draw_data = ImGui::GetDrawData();
+    if (ImGui_draw_data == nullptr)
+    {
+        Log::push(LogLevel::Error, "imgui draw data null ptr");
+        exit(0);
+    }
+    // Let the imgui backend use its own pipeline (created during Init)
+    // Passing the app's graphics pipeline here causes imgui to render with
+    // the wrong pipeline state (depth, blending, vertex layout) and can
+    // occlude or break the triangle rendering.
+    // 
+    ImGui_ImplVulkan_RenderDrawData(ImGui_draw_data, appstate->render_data.command_buffers[index]);
 }
 
 void UI::shutdown_imgui(AppState* appstate)

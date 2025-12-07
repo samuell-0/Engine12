@@ -1,4 +1,4 @@
-#include "core/Log.hpp"
+#include "debuging/Log.hpp"
 
 std::vector<LogEntry> Log::entries;
 #include "iostream"

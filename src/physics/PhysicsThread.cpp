@@ -1,5 +1,5 @@
 #include "physics/PhysicsThread.h"
-#include "core/State.hpp"
+#include "core/States.hpp"
 #include <iostream>
 void DoPhysics(void* const appstate)
 {

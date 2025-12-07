@@ -1,6 +1,6 @@
 #define SDL_MAIN_USE_CALLBACKS 1 
 
-#include "ui/ui.h"
+#include "ui/UI.h"
 #include "renderer/core/Renderer.h"
 
 void SDL_AppQuit(void *appstate, SDL_AppResult result)
@@ -15,4 +15,5 @@ void SDL_AppQuit(void *appstate, SDL_AppResult result)
     UI::shutdown_imgui(as);
     Renderer::clean_up(as);
     UI::clean_up(as);
+    SDL_free(appstate);
 }

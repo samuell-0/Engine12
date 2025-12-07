@@ -1,7 +1,7 @@
 #include <SDL3/SDL_main.h>
 #include <sys/inotify.h>
 
-#include "State.hpp"
+#include "States.hpp"
 #include <iostream>
 // NOTE: should not modify state and the pointer passed to it
 void watchFiles(const void* const appstate)

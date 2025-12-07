@@ -3,7 +3,7 @@
 
 #include <thread>
 
-#include "ui/ui.h"
+#include "ui/UI.h"
 #include "renderer/core/Device.h"
 #include "renderer/core/Swapchain.h"
 #include "renderer/core/Renderer.h"
@@ -11,7 +11,7 @@
 #include "renderer/core/CommandPool.h"
 #include "renderer/utils/ShaderModule.h"
 
-#include "core/Log.hpp"
+#include "debuging/Log.hpp"
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 {
 

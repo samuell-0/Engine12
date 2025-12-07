@@ -1,13 +1,14 @@
 #pragma once
-#include "core/State.hpp"
+#include "core/States.hpp"
 #include "renderer/core/Swapchain.h"
 #include "renderer/core/CommandPool.h"
-#include "core/Log.hpp"
+#include "debuging/Log.hpp"
 #define MAX_FRAMES_IN_FLIGHT 4
 // to be acquired, it must be done being presented and all
 // but, the gpu might still be doig staff to it, so let's make sure it's done by being sure the images's last frame is done
 // but still, this might not cut it, so we should add semaphores. like wtf bro
-namespace Renderer{
+namespace Renderer
+{
     VkResult create_render_pass(AppState* appstate);
     VkResult create_sync_objects(AppState* appstate);
     inline VkResult draw_frame(AppState* appstate)
@@ -33,7 +34,7 @@ namespace Renderer{
         appstate->render_data.image_in_flight[image_index] = appstate->render_data.in_flight_fences[appstate->render_data.current_frame];
 
         // Re-record the primary command buffer for this image so dynamic
-        // data (ImGui draw lists) are recorded fresh for the current frame.
+        // data (imgui draw lists) are recorded fresh for the current frame.
         if (CommandPool::record_command_buffer(appstate, image_index) != VK_SUCCESS)
             return Log::push(LogLevel::Error, "failed to record command buffer (draw_frame)", VK_ERROR_UNKNOWN);
 

@@ -44,8 +44,12 @@ add_library(renderer
     src/physics/PhysicsThread.cpp
     src/shadertoy/ShaderToyRunner.cpp
     src/shadertoy/EffectPipeline.cpp
-    src/ui/ui.cpp
-    src/core/Log.cpp
+    src/ui/UI.cpp
+    src/ui/UIController.cpp
+    src/ui/Utils.cpp
+    src/ui/Animation.cpp
+    src/debuging/Log.cpp
+    third_party/imgui/imgui_demo.cpp
     
 )
 target_include_directories(renderer PUBLIC ${CMAKE_SOURCE_DIR}/include)

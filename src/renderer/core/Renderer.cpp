@@ -1,5 +1,5 @@
 #include "renderer/core/Renderer.h"
-#include "core/Log.hpp"
+#include "debuging/Log.hpp"
 #include "backends/imgui_impl_vulkan.h"
 #include "backends/imgui_impl_sdl3.h"
 VkResult Renderer::create_render_pass(AppState* appstate)
@@ -121,10 +121,10 @@ void Renderer::clean_up(AppState* appstate)
     appstate->disp.destroyPipelineLayout(appstate->render_data.pipeline_layout, nullptr);
     appstate->disp.destroyRenderPass(appstate->render_data.render_pass, nullptr);
 
-    // Destroy ImGui descriptor pool
-    if (appstate->imgui_desc_pool != VK_NULL_HANDLE) {
-        appstate->disp.destroyDescriptorPool(appstate->imgui_desc_pool, nullptr);
-        appstate->imgui_desc_pool = VK_NULL_HANDLE;
+    // Destroy imgui descriptor pool
+    if (appstate->ImGui_desc_pool != VK_NULL_HANDLE) {
+        appstate->disp.destroyDescriptorPool(appstate->ImGui_desc_pool, nullptr);
+        appstate->ImGui_desc_pool = VK_NULL_HANDLE;
     }
 
     appstate->swapchain.destroy_image_views(appstate->render_data.swapchain_image_views);
