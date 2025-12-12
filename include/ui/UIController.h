@@ -2,8 +2,12 @@
 #include "core/States.hpp"
 class UIController {
 public:
-    static void resize_separator_V0(UiData& ui, uint16_t dx);
-    static void resize_separator_V1(UiData& ui, uint16_t dx);
-    void resize_separator_H0(UiData& ui, uint16_t dy);
-    void resize_separator_H1(UiData& ui, uint16_t dy);
+    static UIData* ui;
+    static void resize_V0(uint16_t dx);
+    static void resize_V1(uint16_t dx);
+    static void resize_H0(uint16_t dy);
+    static void resize_H1(uint16_t dy);
+    static void resize_V2(uint16_t dx);
+    static void resize_V3(uint16_t dx);
+    static void on_window_resize();
 };

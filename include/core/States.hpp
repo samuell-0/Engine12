@@ -5,6 +5,8 @@
 #include <imgui.h>
 #include <thread>
 
+#define CLAMP(num, min, max) (num > max ? max : num < min ? min : num)
+
 struct RenderData
 {
     VkQueue                         graphics_queue;
@@ -32,12 +34,13 @@ struct RenderData
 };
 
 enum class SettingOpened { None, Test };
-struct UiData
+struct UIData
 {
-    uint16_t min_middle_width;
+    uint16_t min_middle_width, min_middle_height;
     uint16_t window_width, window_height;
-    uint16_t separator_V0, separator_V1;
-    uint16_t separator_H0, separator_H1;
+    uint16_t V0, V1;
+    uint16_t H0, H1;
+    uint16_t V2, V3;
 
     SettingOpened which_setting;
 };
@@ -59,6 +62,6 @@ struct AppState
 
     VkDescriptorPool ImGui_desc_pool;
 
-    UiData  ui_data;
+    UIData  ui_data;
     VkClearValue clearColor{{1.0f, 1.0f, 1.0f, 1.0f}};
 };

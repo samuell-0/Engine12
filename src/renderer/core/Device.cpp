@@ -13,8 +13,12 @@ VkResult Device::device_initialization(AppState* appstate)
         return Log::push(LogLevel::Error, "unbl to crt surface", VK_ERROR_INITIALIZATION_FAILED);
 
     vkb::PhysicalDeviceSelector      phys_device_selector(appstate->instance);
+    // auto names = phys_device_selector.select_devices().value();
+    // for (auto& gpu : names) Log::entries.emplace_back(LogEntry{LogLevel::Info, gpu, VK_SUCCESS});
+    // Log::push(LogLevel::Info, "");
     vkb::Result<vkb::PhysicalDevice> phys_device_result = phys_device_selector.set_surface(appstate->surface).select();
     vkb::PhysicalDevice phys_device = phys_device_result.value();
+    // vkb::PhysicalDevice phys_device = names[0];
 
     vkb::DeviceBuilder       device_builder{phys_device};
     vkb::Result<vkb::Device> device_result = device_builder.build();

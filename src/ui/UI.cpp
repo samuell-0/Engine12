@@ -157,9 +157,18 @@ VkResult UI::init_imgui(AppState* appstate)
     
     if (!ImGui_ImplVulkan_Init(&init_info))
         return Log::push(LogLevel::Error, "unbl to init vulkan at ImGui_ImplVulkan_Init", VK_ERROR_UNKNOWN);
-    appstate->ui_data.separator_V1 = 300;
-    appstate->ui_data.separator_V0 = 150;
-    appstate->ui_data.min_middle_width = 60;
+
+    {
+        appstate->ui_data.V1 = 400;
+        appstate->ui_data.V0 = 150;
+        appstate->ui_data.H0 = 50;
+        appstate->ui_data.H1 = 150;
+        appstate->ui_data.V2 = 50;
+        appstate->ui_data.V3 = 80;
+        appstate->ui_data.min_middle_width = 200;
+        appstate->ui_data.min_middle_height = 60;
+        UIController::ui = &appstate->ui_data;
+    }
     return VK_SUCCESS;
 }
 

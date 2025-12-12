@@ -14,8 +14,9 @@ struct LogEntry
 
 class Log
 {
-    private:
-        static std::vector<LogEntry> entries;
+    // private:
+    //     static std::vector<LogEntry> entries;
     public:
+        static std::vector<LogEntry> entries;
         static VkResult push(LogLevel lvl, const std::string& msg, VkResult res = VK_SUCCESS);
 };
